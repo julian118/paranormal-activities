@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="app.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>room creator</title>
+</head>
+<body>
+    <h1>Create or join room</h1>
+    <input type="text" placeholder="name" id="name">
+    <input placeholder="room code" type="text" id="room-code">
+    <button id="join" onclick="joinRoom()">join room</button>
+    <br>
+    <br>
+    <input type="text" placeholder="name" id="name-create">
+    <button id="create" onclick="createRoom()">create room</button>
+    <hr>
+    <h1 id="room-code-display">room code: </h1>
+    <p id="username">Username: </p>
+    <p id="UUID">UUID: </p>
+    <p>Joined people:</p>
+    <button onclick="leaveRoom()">leave room</button>
+    <ul id="joined">
+    </ul>
+</body>
+</html>
