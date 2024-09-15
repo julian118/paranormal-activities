@@ -1,34 +1,54 @@
 import { useState } from "react"
+import JoinRoomDetails from "../models/JoinRoomDetails.model"
 
-function Start() {
+interface StartProps {
+    onJoinRoom: (JoinRoomDetails: JoinRoomDetails) => void
+    errorMessage: string | null
+}
+const Start: React.FC<StartProps> = props => {
     // variables
     const maxNameLength: number = 15
     const maxRoomCodeLength: number = 4
-
+    
+    const [enteredRoomDetails, setEnteredRoomDetails] = useState<JoinRoomDetails>();
     const [roomcode, setRoomCode] = useState<string>('')
     const [name, setName] = useState<string>('')
+    const [validRoomcode, setValidRoomcode] = useState<boolean>(false)
+    const [validName, setValidName] = useState<boolean>(false)
+
     const [nameCharacterAmount, setNameCharacterAmount] = useState<number>(0)
 
     const handlePlayClick = () => {
-        console.log("Roomcode:", roomcode)
-        console.log("Name:", name)
+        
+        setEnteredRoomDetails(new JoinRoomDetails(roomcode, name))
+        if (enteredRoomDetails) {
+            console.log(roomcode, name)
+            props.onJoinRoom(enteredRoomDetails)
+        }
+        
     }
 
     const handleRoomCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const inputValue = event.target.value.toUpperCase()
-        const isAlphabet = (str: string) => /^[A-Z]+$/.test(str);
-
+        const isAlphabet = (str: string) => /^[A-Z]*$/.test(str)
+    
         if (inputValue.length <= maxRoomCodeLength && isAlphabet(inputValue)) {
-            setRoomCode(inputValue)
+            setRoomCode(inputValue);
+            if (inputValue.length === maxRoomCodeLength) {
+                setValidRoomcode(true)
+            } else {
+                setValidRoomcode(false)
+            }
         }
     }
+    
     const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const inputValue = event.target.value
-
         setNameCharacterAmount(inputValue.length)
 
         if ((inputValue.length + 1) <= maxNameLength) {
              setName(inputValue)
+             setValidName(true)
         }
     }
 
@@ -68,7 +88,14 @@ function Start() {
             <button 
             type="submit" 
             onClick={handlePlayClick}
-            className="btn btn-primary form-control">play</button>
+            className="btn btn-primary form-control"
+            disabled={!validRoomcode || name.length < 1}
+            >play</button>
+            <br /><br />
+            {props.errorMessage ? 
+            (<div className="alert alert-danger" role="alert">
+            {props.errorMessage}
+            </div>) : null}
         </div>
         
     )
