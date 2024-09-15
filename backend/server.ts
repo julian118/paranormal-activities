@@ -7,7 +7,7 @@ import GameRoom from "./GameRoom.ts"
 import { Application, Router } from "https://deno.land/x/oak/mod.ts"
 import { Room } from "./models/room.model.ts"
 import { Player } from "./models/player.model.ts"
-import { BroadcastMessage } from "./models/broadcastMessage.model.ts"
+import { mergeHeaders } from "jsr:@oak/commons@^1.0/cookie_map"
 
 /*
 connected clients data structure:
@@ -25,6 +25,12 @@ connected clients data structure:
 ]
 */
 
+type BroadcastMessage = {
+  [key: string]: any
+} & {
+  event: string
+}
+
 const connectedClients: Map<string, Map<string, UserWebSocket>> = new Map()
 
 const app = new Application()
@@ -41,8 +47,6 @@ function mapToArrayOfObjects<T>(map: Map<any, T>): T[] {
   return result
 }
 
-
-
 interface UserWebSocket extends WebSocket {
   player: Player
 }
@@ -56,8 +60,8 @@ function broadcastToPlayer(message: BroadcastMessage, socket: UserWebSocket) {
     socket.send(jsonMessage)
   }
 }
-function broadcastToRoom(message: BroadcastMessage) {
-  const roomCode = message.room.roomCode
+
+function broadcastToRoom(message: BroadcastMessage, roomCode: string) {
   const jsonMessage = JSON.stringify(message)
   const clients = connectedClients.get(roomCode)
 
@@ -100,12 +104,12 @@ function broadcastGameInformation(room: Room) {
     "Sending updated username list to all clients: " +
       JSON.stringify(playerList),
   )
-  broadcastToRoom(
-    new BroadcastMessage(
-      "update-users",
-      room,
-    ),
-  )
+  const message: BroadcastMessage = {
+    event: "update-users",
+    room: room
+  }
+  broadcastToRoom(message, room.roomCode)
+  
 }
 
 router.get("/start_web_socket", async (ctx) => {
@@ -114,56 +118,46 @@ router.get("/start_web_socket", async (ctx) => {
   socket.onmessage = (message) => {
     const data = JSON.parse(message.data)
     switch (data.event) {
-      case "create-room": {
-        // leave the current game
-        if (socket.player) {
-          gameRoom.removePlayerFromRoom(socket.player)
-          const oldRoom: Room | null = gameRoom.getRoomByCode(socket.player.connectedGameCode)
-          if (oldRoom) {
-            broadcastGameInformation(oldRoom)
-          }
-          
-        }
+      case "create-room": {     
 
         // create a new room
-        const newRoom: Room = gameRoom.createRoom()
-        const newPlayer: Player = new Player(data.name, newRoom.roomCode)
-        gameRoom.addPlayerToRoom(newPlayer, newRoom)
+        const newRoom: Room = gameRoom.createRoom(socket)
 
         // adding player and room to the map of connected clients
         connectedClients.set(newRoom.roomCode, new Map())
-        socket.player = newPlayer
-        connectedClients.get(newPlayer.connectedGameCode)?.set(
-          newPlayer.name,
-          socket,
-        )
 
-        broadcastToRoom(
-          new BroadcastMessage(
-            "create-room",
-            newRoom,
-          ),
-        )
-        broadcastToPlayer(
-          new BroadcastMessage(
-            "create-room",
-            newRoom,
-            newPlayer
-          ),
-          socket
-        )
+        const message: BroadcastMessage = {
+          event: "create-room",
+          room: newRoom
+        }
+        broadcastToRoom(message, newRoom.roomCode)
+        broadcastToPlayer(message, socket)
         break
       }
       case "join-room": {
-        const newPlayer: Player = new Player(data.name, data.roomCode)
         const targetRoom: Room | null = gameRoom.getRoomByCode(data.roomCode)
-
+        let isPartyLeader = false
+        if (targetRoom?.playerList.size === 0) {
+          isPartyLeader = true
+        }
+        const newPlayer: Player = new Player(data.name, data.roomCode, data.deviceId, isPartyLeader)
+        
         if (!targetRoom) {
-          socket.close(1008, `room ${data.roomCode} doesnt exist`)
+          const message: BroadcastMessage = {
+            event: "error-room-nonexistent",
+            isError: true,
+            details: "The room you are trying to join does not exist."
+          }
+          broadcastToPlayer(message, socket)
           break
         }
         if (targetRoom.playerList.has(newPlayer.name)) {
-          socket.close(1008, `Username ${name} is already taken`)
+          const message: BroadcastMessage = {
+            event: "error-name-taken",
+            isError: true,
+            details: "Someone in your room already has your name."
+          }
+          broadcastToPlayer(message, socket)
           break
         }
         gameRoom.addPlayerToRoom(newPlayer, targetRoom)
@@ -173,22 +167,13 @@ router.get("/start_web_socket", async (ctx) => {
           newPlayer.name,
           socket,
         )
-
+        const message: BroadcastMessage = {
+          event: "join-room",
+          room: targetRoom
+        }
     
-        broadcastToRoom(
-          new BroadcastMessage(
-            "join-room",
-            targetRoom
-          ),
-        )
-        broadcastToPlayer(
-          new BroadcastMessage(
-            "join-room",
-            targetRoom,
-            newPlayer
-          ),
-          socket
-        )
+        broadcastToRoom(message, targetRoom.roomCode)
+        broadcastToPlayer(message, socket)
         break
       }
       case "leave-room": {
@@ -207,12 +192,12 @@ router.get("/start_web_socket", async (ctx) => {
   }
   socket.onopen = () => {
     console.log("socket opened!")
-    // broadcastGameInformation(socket.player.connectedGameCode, socket.player)
   }
 
   // when a client disconnects, remove them from the connected clients list
   // and broadcast the active users list
   socket.onclose = () => {
+    console.log("Socket closed!")
     if (socket.player) {
       connectedClients.get(socket.player.connectedGameCode)?.delete(socket.player.name)
       gameRoom.removePlayerFromRoom(socket.player)

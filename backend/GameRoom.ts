@@ -10,7 +10,7 @@ export default class GameRoom {
     console.log(this.rooms)
   }
 
-  createRoom(): Room {
+  createRoom(hostSocket: WebSocket): Room {
     // Generate a unique room code
     let uniqueRoomCode: string
     do {
@@ -18,7 +18,7 @@ export default class GameRoom {
     } while (this.isRoomCodeTaken(uniqueRoomCode))
 
     // Create and add the new room
-    const newRoom: Room = new Room(uniqueRoomCode, new Map())
+    const newRoom: Room = new Room(uniqueRoomCode, new Map(), hostSocket)
     this.rooms.set(newRoom.roomCode, newRoom)
 
     return newRoom
@@ -54,6 +54,13 @@ export default class GameRoom {
     const room = this.getRoomByCode(player.connectedGameCode)
 
     room?.playerList.delete(player.name)
+    
+    if (player.isPartyLeader) {
+      const firstPlayer: Player = room?.playerList.values().next().value
+      if (firstPlayer) {
+        firstPlayer.isPartyLeader = true
+      } 
+    }
 
     if (room && room?.playerList.size <= 0) {
       this.rooms.delete(room.roomCode)

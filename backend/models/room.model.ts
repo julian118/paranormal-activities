@@ -3,10 +3,12 @@ import { Player } from "./player.model.ts"
 export class Room {
   public roomCode: string
   public playerList: Map<string, Player>
+  public host: WebSocket;
 
-  constructor(roomCode: string, playerList: Map<string, Player>) {
+  constructor(roomCode: string, playerList: Map<string, Player>, host: WebSocket) {
     this.roomCode = roomCode
     this.playerList = playerList
+    this.host = host
   }
 
   toJSON() {
