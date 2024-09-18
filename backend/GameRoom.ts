@@ -1,79 +1,91 @@
-import { Player } from "./models/player.model.ts"
-import { Room } from "./models/room.model.ts"
+import { Player } from "./models/player.model.ts";
+import { Room } from "./models/room.model.ts";
 
 export default class GameRoom {
   //public players: Player[] = []
-  public rooms: Map<string, Room> = new Map()
+  public rooms: Map<string, Room> = new Map();
 
   logActiveData(): void {
     //console.log(this.players)
-    console.log(this.rooms)
+    console.log(this.rooms);
   }
 
   createRoom(hostSocket: WebSocket): Room {
     // Generate a unique room code
-    let uniqueRoomCode: string
+    let uniqueRoomCode: string;
     do {
-      uniqueRoomCode = this.generateRoomCode()
-    } while (this.isRoomCodeTaken(uniqueRoomCode))
+      uniqueRoomCode = this.generateRoomCode();
+    } while (this.isRoomCodeTaken(uniqueRoomCode));
 
     // Create and add the new room
-    const newRoom: Room = new Room(uniqueRoomCode, new Map(), hostSocket)
-    this.rooms.set(newRoom.roomCode, newRoom)
+    const newRoom: Room = new Room(uniqueRoomCode, new Map(), hostSocket);
+    this.rooms.set(newRoom.roomCode, newRoom);
 
-    return newRoom
+    return newRoom;
   }
 
   // generate a random 4-letter room code
   private generateRoomCode(): string {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    let result = ""
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let result = "";
     for (let i = 0; i < 4; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length))
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    return result
+    return result;
   }
 
   // Check if a room code is already taken
   private isRoomCodeTaken(code: string): boolean {
-    return this.rooms.get(code) ? true : false
+    return this.rooms.get(code) ? true : false;
   }
 
   addPlayerToRoom(player: Player, room: Room): string {
     if (room.playerList.get(player.name)) {
-      return "DUPLICATE_USERNAME"
+      return "DUPLICATE_USERNAME";
     }
 
-    room.playerList.set(player.name, player)
-    return "SUCCESS"
+    room.playerList.set(player.name, player);
+    return "SUCCESS";
   }
 
   removePlayerFromRoom(player: Player) {
-    console.log(`${player.name} left the game ${player.connectedGameCode}`)
+    console.log(`${player.name} left the game ${player.connectedGameCode}`);
 
-    const room = this.getRoomByCode(player.connectedGameCode)
+    const room = this.getRoomByCode(player.connectedGameCode);
 
-    room?.playerList.delete(player.name)
-    
+    room?.playerList.delete(player.name);
+
     if (player.isPartyLeader) {
-      const firstPlayer: Player = room?.playerList.values().next().value
+      const firstPlayer: Player = room?.playerList.values().next().value;
       if (firstPlayer) {
-        firstPlayer.isPartyLeader = true
-      } 
+        firstPlayer.isPartyLeader = true;
+      }
     }
 
     if (room && room?.playerList.size <= 0) {
-      this.rooms.delete(room.roomCode)
+      this.rooms.delete(room.roomCode);
     }
   }
 
   getRoomByCode(roomCode: string): Room | null {
-    const room: Room | undefined = this.rooms.get(roomCode)
+    const room: Room | undefined = this.rooms.get(roomCode);
 
     if (!room) {
-      return null
+      return null;
     }
 
-    return room
+    return room;
   }
+  getPlayerByDeviceId(deviceId: string): Player | null {
+    for (const room of this.rooms.values()) {
+      for (const player of room.playerList.values()) {
+        if (player.deviceId === deviceId) {
+          return player;
+        }
+      }
+    }
+    return null; // return null if no player is found
+  }
+  
+  
 }

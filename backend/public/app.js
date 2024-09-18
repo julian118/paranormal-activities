@@ -1,21 +1,21 @@
-let joinButton = document.getElementById("join")
-let createButton = document.getElementById("create")
+let joinButton = document.getElementById("join");
+let createButton = document.getElementById("create");
 
-const backendUrl = "ws://localhost:8080"
+const backendUrl = "ws://localhost:8080";
 
 const socket = new WebSocket(
   `${backendUrl}/start_web_socket`,
-)
+);
 
 function getDeviceId() {
-  let deviceId = localStorage.getItem('deviceId')
+  let deviceId = localStorage.getItem("deviceId");
 
   if (!deviceId) {
-    newDeviceId = crypto.randomUUID()
-    localStorage.setItem('deviceId', newDeviceId)
-    deviceId = newDeviceId
+    newDeviceId = crypto.randomUUID();
+    localStorage.setItem("deviceId", newDeviceId);
+    deviceId = newDeviceId;
   }
-  return deviceId
+  return deviceId;
 }
 // Joining an existing room
 /*
@@ -39,9 +39,9 @@ function createRoom() {
   socket.send(
     JSON.stringify({
       event: "create-room",
-      deviceId: getDeviceId()
+      deviceId: getDeviceId(),
     }),
-  )
+  );
 }
 
 /*
@@ -57,30 +57,30 @@ function leaveRoom() {
 */
 
 socket.onmessage = (message) => {
-  const data = JSON.parse(message.data)
-  displayData(data)
-}
+  const data = JSON.parse(message.data);
+  displayData(data);
+};
 
 socket.onerror = (error) => {
-  console.error("WebSocket Error: ", error)
-}
+  console.error("WebSocket Error: ", error);
+};
 
 socket.onclose = () => {
-  console.log("Socket closed")
-}
+  console.log("Socket closed");
+};
 
 function displayData(data) {
-  console.log(data)
+  console.log(data);
 
   // Update room code
   document.getElementById("room-code-display").innerHTML = "Room code: " +
-    data.room.roomCode
+    data.room.roomCode;
 
   // Update the player list
-  document.getElementById("joined").innerHTML = ""
+  document.getElementById("joined").innerHTML = "";
   for (let i = 0; i < data.room.playerList.length; i++) {
-    let newListItem = document.createElement("li")
-    newListItem.innerText = data.room.playerList[i].name
-    document.getElementById("joined").appendChild(newListItem)
+    let newListItem = document.createElement("li");
+    newListItem.innerText = data.room.playerList[i].name;
+    document.getElementById("joined").appendChild(newListItem);
   }
 }

@@ -1,23 +1,21 @@
 import Player from "../models/Player.model";
 
 interface PlayerListProps {
-    players: Player[];
+  players: Player[];
 }
-const PlayerList: React.FC<PlayerListProps> = props => {
-    return (
-        <ul className="list-group">
-            {props.players.map((player, index) => (
-                <li key={player.name} className="list-group-item">
+const PlayerList: React.FC<PlayerListProps> = (props) => {
+  return (
+    <ul className="list-group">
+      {props.players.map((player, index) => (
+        <li key={player.name} className="list-group-item">
+          {index + 1}.&nbsp;
+          {player.name}
 
-                    {index + 1}.&nbsp;
-                    {player.name}
-                    
-                    {player.isPartyLeader ? ' 👑' : null}
-                </li>
-            ))}
-        </ul>
-    )
-}
- 
+          {player.isPartyLeader ? " 👑" : null}
+        </li>
+      ))}
+    </ul>
+  );
+};
 
-export default PlayerList
+export default PlayerList;
