@@ -1,13 +1,9 @@
 // server.js
 
-// todo list
-// () calling getGameRoomByCode every time is unnessesary but adding the property to player creates a stack overflow
-
 import GameRoom from "./GameRoom.ts"
 import { Application, Router } from "https://deno.land/x/oak/mod.ts"
 import { Room } from "./models/room.model.ts"
 import { Player } from "./models/player.model.ts"
-import { mergeHeaders } from "jsr:@oak/commons@^1.0/cookie_map"
 
 /*
 connected clients data structure:

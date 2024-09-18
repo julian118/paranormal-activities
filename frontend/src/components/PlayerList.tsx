@@ -5,17 +5,19 @@ interface PlayerListProps {
 }
 const PlayerList: React.FC<PlayerListProps> = props => {
     return (
-        <ol className="list-group list-group-numbered">
-            {props.players.map(player => (
+        <ul className="list-group">
+            {props.players.map((player, index) => (
                 <li key={player.name} className="list-group-item">
-                    {player.name}
 
+                    {index + 1}.&nbsp;
+                    {player.name}
+                    
                     {player.isPartyLeader ? ' 👑' : null}
                 </li>
             ))}
-        </ol>
+        </ul>
     )
 }
-
+ 
 
 export default PlayerList
