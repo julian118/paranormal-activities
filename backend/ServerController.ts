@@ -1,7 +1,7 @@
 import GameRoom from "./GameRoom.ts"
-import { Application, Router } from "https://deno.land/x/oak/mod.ts"
 import { Room } from "./models/room.model.ts"
 import { Player } from "./models/player.model.ts"
+
 
 type BroadcastMessage = {
     [key: string]: any
@@ -45,19 +45,25 @@ export default class ServerController {
         const jsonMessage = JSON.stringify(message)
         const clients = this.connectedClients.get(roomCode)
     
-        this.logPlayers(roomCode)
-    
+        const room: Room | null = this.gameRoom.getRoomByCode(roomCode)
+        if (room && room.host.readyState === WebSocket.OPEN) {
+            console.log('trying to send message to host')
+            room.host.send(jsonMessage)
+        }
+
         // Check if there are any clients for the room
         if (!clients) {
-        console.error(`No clients found for room ${roomCode}`)
-        return
+            console.error(`No clients found for room ${roomCode}`)
+            return
         }
+
+        this.logPlayers(roomCode)
     
         // Iterate over the WebSocket objects in the map
         for (const client of clients.values()) {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(jsonMessage)
-        }
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(jsonMessage)
+            }
         }
     }
     

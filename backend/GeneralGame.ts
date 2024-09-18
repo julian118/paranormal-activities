@@ -8,6 +8,8 @@ type BroadcastMessage = {
 
 export default class GeneralGame {
   informativeMessage(message: string, playerList: Player[]) {
+
+    console.log(`message: ${message} for players ${playerList}`)
     const infoMessage: BroadcastMessage = {
       event: "informative-message",
       message: message,

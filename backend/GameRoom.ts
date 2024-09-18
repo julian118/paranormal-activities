@@ -80,7 +80,7 @@ export default class GameRoom {
     for (const room of this.rooms.values()) {
       for (const player of room.playerList.values()) {
         if (player.deviceId === deviceId) {
-          return player;
+          return player
         }
       }
     }

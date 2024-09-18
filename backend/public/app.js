@@ -2,6 +2,7 @@ let joinButton = document.getElementById("join");
 let createButton = document.getElementById("create");
 
 const backendUrl = "ws://localhost:8080";
+let recievedData = null
 
 const socket = new WebSocket(
   `${backendUrl}/start_web_socket`,
@@ -44,6 +45,18 @@ function createRoom() {
   );
 }
 
+function informativeMessage() {
+  console.log(recievedData.room.playerList.map(player => player.deviceId))
+
+  socket.send(
+    JSON.stringify({
+      event: "informative-message",
+      message: "test message for all players",
+      playerDeviceIdList: recievedData.room.playerList.map(player => player.deviceId)
+    })
+  )
+}
+
 /*
 // leaving the current room
 function leaveRoom() {
@@ -70,8 +83,9 @@ socket.onclose = () => {
 };
 
 function displayData(data) {
-  console.log(data);
+  recievedData = data
 
+  console.log(data)
   // Update room code
   document.getElementById("room-code-display").innerHTML = "Room code: " +
     data.room.roomCode;
