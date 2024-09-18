@@ -1,0 +1,3 @@
+.logo {
+    width: clamp(200px, 100%, 500px);
+}

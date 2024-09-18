@@ -1,5 +1,6 @@
 import { useState } from "react"
 import JoinRoomDetails from "../models/JoinRoomDetails.model"
+import logo from '../assets/paranormal-logo.png';
 
 interface StartProps {
     onJoinRoom: (JoinRoomDetails: JoinRoomDetails) => void
@@ -54,6 +55,9 @@ const Start: React.FC<StartProps> = props => {
 
     return (
         <div className="container">  
+        <div className="d-flex justify-content-center">
+        <img  src={logo} alt="paranormal activities" className="logo" />
+        </div>
             <br />      
             <h1>Join a game</h1>
             <hr />
