@@ -1,23 +1,23 @@
-import { Player } from "./models/player.model.ts";
+import { Player } from "../models/player.model.ts"
 
 type BroadcastMessage = {
-  [key: string]: any;
+  [key: string]: any
 } & {
-  event: string;
-};
+  event: string
+}
 
-export default class GeneralGame {
+export default class GameService {
+  /*
   informativeMessage(message: string, playerList: Player[]) {
-
     console.log(`message: ${message} for players ${playerList}`)
     const infoMessage: BroadcastMessage = {
       event: "informative-message",
       message: message,
-    };
+    }
 
     for (const player of playerList) {
       if (player.socket.readyState === WebSocket.OPEN) {
-        player.socket.send(JSON.stringify(infoMessage));
+        player.socket.send(JSON.stringify(infoMessage))
       }
     }
   }
@@ -25,12 +25,13 @@ export default class GeneralGame {
   clear(playerList: Player[]) {
     const infoMessage: BroadcastMessage = {
       event: "clear",
-    };
+    }
 
     for (const player of playerList) {
       if (player.socket.readyState === WebSocket.OPEN) {
-        player.socket.send(JSON.stringify(infoMessage));
+        player.socket.send(JSON.stringify(infoMessage))
       }
     }
   }
+    */
 }
