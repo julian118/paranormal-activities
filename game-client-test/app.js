@@ -5,7 +5,7 @@ const backendUrl = "ws://localhost:8080"
 let recievedData = null
 
 const socket = new WebSocket(
-  `${backendUrl}/start_web_socket`,
+  `${backendUrl}/start_host_web_socket`,
 )
 
 function getDeviceId() {

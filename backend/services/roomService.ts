@@ -1,5 +1,6 @@
 import { Player } from "../models/player.model.ts"
 import { Room } from "../models/room.model.ts"
+import { HostWebSocket } from "../types/hostWebSocket.ts"
 
 export default class RoomService {
   //public players: Player[] = []
@@ -23,13 +24,17 @@ export default class RoomService {
     return this.rooms.get(code) ? true : false
   }
 
-  public createRoom(hostSocket: WebSocket): Room {
+  public generateUniqueRoomCode(): string {
     let uniqueRoomCode: string
     do {
       uniqueRoomCode = this.generateRoomCode()
     } while (this.isRoomCodeTaken(uniqueRoomCode))
+    return uniqueRoomCode
+  }
 
-    const newRoom: Room = new Room(uniqueRoomCode, new Map(), hostSocket)
+  public createRoom(hostSocket: HostWebSocket, uniqueRoomCode: string): Room {
+
+    const newRoom: Room = new Room(uniqueRoomCode, new Map(), hostSocket.host)
     this.rooms.set(newRoom.roomCode, newRoom)
     return newRoom
   }

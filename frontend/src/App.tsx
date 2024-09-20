@@ -36,7 +36,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(
-    backendUrl + "/start_web_socket",
+    backendUrl + "/start_player_web_socket",
     {
       share: true,
       shouldReconnect: () => false,

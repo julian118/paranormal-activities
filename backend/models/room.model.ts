@@ -1,14 +1,15 @@
+import { Host } from "./host.model.ts"
 import { Player } from "./player.model.ts"
 
 export class Room {
   public roomCode: string
   public playerList: Map<string, Player>
-  public host: WebSocket
+  public host: Host
 
   constructor(
     roomCode: string,
     playerList: Map<string, Player>,
-    host: WebSocket,
+    host: Host,
   ) {
     this.roomCode = roomCode
     this.playerList = playerList

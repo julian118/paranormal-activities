@@ -1,49 +1,77 @@
 // server.ts
-import { JoinRoomMessage, LeaveRoomMessage, CreateRoomMessage } from "./types/messages.ts";
+import { JoinRoomMessage, CreateRoomMessage } from "./types/messages.ts";
 import { Application, Router } from "https://deno.land/x/oak/mod.ts";
 import ConnectionController from "./services/connectionService.ts";
 import RoomController from "./controllers/roomController.ts";
-import { UserWebSocket } from "./types/userWebSocket.ts";
+import { PlayerWebSocket } from "./types/userWebSocket.ts"
+import { HostWebSocket } from "./types/hostWebSocket.ts"
 
-const app: Application = new Application();
-const port: number = 8080;
-const router: Router = new Router();
+const app: Application = new Application()
+const port: number = 8080
+const router: Router = new Router()
 
-const connectionController: ConnectionController = new ConnectionController();
-const roomController: RoomController = new RoomController();
+const connectionController: ConnectionController = new ConnectionController()
+const roomController: RoomController = new RoomController()
 
-router.get("/start_web_socket", async (ctx) => {
-  const socket = await ctx.upgrade() as UserWebSocket;
+router.get("/start_player_web_socket", async (ctx) => {
+  const socket = await ctx.upgrade() as PlayerWebSocket;
 
-  socket.onmessage = (message) => {
+  socket.onmessage = (message: any) => {
     console.log(message.data)
     const data = JSON.parse(message.data);
 
     switch (data.event) {
-      case "create-room": {
-        roomController.createRoom(data as CreateRoomMessage, socket);
-        break;
-      }
+
       case "join-room": {
-        roomController.joinRoom(data as JoinRoomMessage, socket);
-        break;
+        roomController.joinRoom(data as JoinRoomMessage, socket)
+        break
       }
       case "leave-room": {
-        roomController.leaveRoom(socket);
-        break;
+        roomController.leaveRoom(socket)
+        break
       }
     }
-  };
+  }
 
   socket.onopen = () => {
-    console.log("socket opened!");
-  };
+    console.log("client socket opened!")
+  }
 
   socket.onclose = () => {
-    roomController.leaveRoom(socket);
-    connectionController.disconnectPlayer(socket);
-  };
-});
+    console.log("client socket closed!")
+    roomController.leaveRoom(socket)
+    connectionController.disconnectPlayer(socket)
+  }
+})
+
+
+router.get("/start_host_web_socket", async (ctx) => {
+  const hostSocket = await ctx.upgrade() as HostWebSocket
+
+  hostSocket.onmessage = (message: any) => {
+    console.log(message.data)
+    const data = JSON.parse(message.data)
+
+    switch (data.event) {
+      case "create-room": {
+        roomController.createRoom(data as CreateRoomMessage, hostSocket)
+        break
+      }
+      default: 
+        console.error("invalid message recieved")
+    }
+  }
+
+  hostSocket.onopen = () => {
+    console.log("host socket opened!")
+  }
+
+  hostSocket.onclose = () => {
+    console.log("host socket closed!")
+    roomController.deleteRoom(hostSocket.host)
+  }
+})
+
 
 app.use(router.routes());
 app.use(router.allowedMethods());

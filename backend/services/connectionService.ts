@@ -1,8 +1,10 @@
 import GameRoom from "./roomService.ts"
 import { Room } from "../models/room.model.ts"
 import { Player } from "../models/player.model.ts"
-import { UserWebSocket } from "../types/userWebSocket.ts"
+import { PlayerWebSocket } from "../types/userWebSocket.ts"
 import BroadcastMessage from "../types/broadcastMessage.ts"
+import { HostWebSocket } from "../types/hostWebSocket.ts"
+import { Host } from "../models/host.model.ts"
 
 
 
@@ -22,28 +24,39 @@ export default class ConnectionService {
     ]
 ]
     */
-  connectedClients: Map<string, Map<string, UserWebSocket>> = new Map()
+  connectedPlayers: Map<string, Map<string, PlayerWebSocket>> = new Map()
+  connectedHosts: Map<string, HostWebSocket> = new Map()
 
-  broadcastToPlayer(message: BroadcastMessage, socket: UserWebSocket) {
+  broadcastToPlayer(message: BroadcastMessage, playerSocket: PlayerWebSocket) {
     const jsonMessage = JSON.stringify(message)
+    if (playerSocket.readyState == WebSocket.OPEN) {
+      playerSocket.send(jsonMessage)
+    }
+  }
 
-    if (socket.readyState == WebSocket.OPEN) {
-      socket.send(jsonMessage)
+  broadcastToHost(message: BroadcastMessage, hostSocket: HostWebSocket) {
+    const jsonMessage = JSON.stringify(message)
+    if (hostSocket.readyState == WebSocket.OPEN) {
+      hostSocket.send(jsonMessage)
     }
   }
 
   broadcastToRoom(message: BroadcastMessage, room: Room) {
     const jsonMessage = JSON.stringify(message)
-    const clients = this.connectedClients.get(room.roomCode)
+    const clients = this.connectedPlayers.get(room.roomCode)
+    const host = this.connectedHosts.get(room.roomCode)
 
-    if (room.host.readyState === WebSocket.OPEN) {
-      room.host.send(jsonMessage)
+    if (!host) {
+      throw new ReferenceError(`Host for room ${room.roomCode} not found`)
+    }
+
+    if (host.readyState === WebSocket.OPEN) {
+      host.send(jsonMessage)
     }
 
     // Check if there are any clients for the room
     if (!clients) {
-      console.error(`No clients found for room ${room.roomCode}`)
-      return
+      throw new ReferenceError(`No clients found for room ${room.roomCode}`)
     }
 
     // Iterate over the WebSocket objects in the map
@@ -55,7 +68,7 @@ export default class ConnectionService {
   }
 
   private logPlayers(roomcode: string) {
-    const sockets = this.connectedClients.get(roomcode)
+    const sockets = this.connectedPlayers.get(roomcode)
     if (!sockets) {
       return
     }
@@ -79,10 +92,32 @@ export default class ConnectionService {
     this.broadcastToRoom(message, room)
   }
 
-  disconnectPlayer(socket: UserWebSocket) {
+  addRoomConnection(roomCode: string) {
+    this.connectedPlayers.set(roomCode, new Map())
+  }
+
+  connectPlayer(player: Player, playerSocket: PlayerWebSocket) {
+    playerSocket.player = player
+    const roomMap: Map<string, PlayerWebSocket> | undefined = this.connectedPlayers.get(player.connectedGameCode)
+    if (!roomMap) {
+      throw new ReferenceError("The room you are trying to connect to does not exist")
+    }
+    roomMap.set(player.deviceId, playerSocket)
+  }
+
+  disconnectPlayer(playerSocket: PlayerWebSocket) {
     console.log("Socket closed!")
-    const player: Player = socket.player
-    this.connectedClients.get(player.connectedGameCode)?.delete(player.deviceId)
+    const player: Player = playerSocket.player
+    this.connectedPlayers.get(player.connectedGameCode)?.delete(player.deviceId)
+  }
+
+  connectHost(host: Host, hostSocket: HostWebSocket) {
+    hostSocket.host = host
+    this.connectedHosts.set(host.hostedGameCode, hostSocket)
+  }
+
+  disconnectHost(hostSocket: HostWebSocket) {
+    this.connectedHosts.delete(hostSocket.host.hostedGameCode)
   }
 
   /*

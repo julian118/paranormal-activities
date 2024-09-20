@@ -3,10 +3,13 @@ import { Room } from "../models/room.model.ts";
 import RoomService from "../services/roomService.ts"
 import ConnectionService from "../services/connectionService.ts"
 import { CreateRoomMessage, JoinRoomMessage, LeaveRoomMessage } from "../types/messages.ts"
-import { UserWebSocket } from "../types/userWebSocket.ts"
+import { PlayerWebSocket } from "../types/userWebSocket.ts"
 import BroadcastMessage from "../types/broadcastMessage.ts"
+import { HostWebSocket } from "../types/hostWebSocket.ts"
+import { Host } from "../models/host.model.ts"
 
 export default class RoomController {
+
   private roomService: RoomService;
   private connectionService: ConnectionService;
 
@@ -15,50 +18,69 @@ export default class RoomController {
     this.connectionService = new ConnectionService()
   }
 
-  createRoom(message: CreateRoomMessage, hostSocket: UserWebSocket) {
+  createRoom(message: CreateRoomMessage, hostSocket: HostWebSocket) {
     try {
-      const room: Room = this.roomService.createRoom(hostSocket)
-      console.log(room)
+      const uniqueRoomCode = this.roomService.generateUniqueRoomCode()
+      const host: Host = new Host(uniqueRoomCode, message.deviceId)
+      const room: Room = this.roomService.createRoom(hostSocket, uniqueRoomCode)
+      
+      this.connectionService.connectHost(host, hostSocket)
+      this.connectionService.addRoomConnection(room.roomCode)
       this.connectionService.broadcastGameInformation(room)
     } catch (error: unknown) {
-      this.broadcastError("An unknown error occured", hostSocket)
+      this.broadcastErrorToHost("An unknown error occured", hostSocket)
       console.error(error)
     }
   }
 
-  joinRoom(message: JoinRoomMessage, socket: UserWebSocket) {
+  deleteRoom(Host: Host) {
+    this.connectionService.addRoomConnection
+  }
+
+  joinRoom(message: JoinRoomMessage, socket: PlayerWebSocket) {
     try {
       const room: Room = this.roomService.getRoomByCode(message.roomCode)
       const player: Player = new Player(message.name, room.roomCode, message.deviceId, false) 
-      this.roomService.addPlayerToRoom(player, room)
-      this.connectionService.broadcastGameInformation(room)
       const broadcastMessage: BroadcastMessage = {
         event: "joined-room",
         room: room
       }
+
+      this.connectionService.connectPlayer(player, socket)
+      this.roomService.addPlayerToRoom(player, room)
+      this.connectionService.broadcastGameInformation(room)
       this.connectionService.broadcastToPlayer(broadcastMessage, socket)
+
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        this.broadcastError(error.message, socket)
+      if (error instanceof ReferenceError) {
+        this.broadcastErrorToPlayer(error.message, socket)
       } else {
-        this.broadcastError("An unknown error occured", socket)
+        this.broadcastErrorToPlayer("An unknown error occured", socket)
         console.error(error)
       }
     }
   }
 
-  leaveRoom(socket: UserWebSocket) {
+  leaveRoom(socket: PlayerWebSocket) {
     this.roomService.removePlayerFromRoom(socket.player)
     const room: Room = this.roomService.getRoomByCode(socket.player.connectedGameCode)
     this.connectionService.broadcastGameInformation(room)
   }
 
-  private broadcastError(details: string, socket: UserWebSocket) {
+  private broadcastErrorToPlayer(details: string, socket: PlayerWebSocket) {
     const message: BroadcastMessage = {
       event: "error-message",
       isError: true,
       details: details
     }
     this.connectionService.broadcastToPlayer(message, socket)
+  }
+  private broadcastErrorToHost(details: string, socket: HostWebSocket) {
+    const message: BroadcastMessage = {
+      event: "error-message",
+      isError: true,
+      details: details
+    }
+    this.connectionService.broadcastToHost(message, socket)
   }
 }
