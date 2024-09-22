@@ -20,6 +20,7 @@ export class Room {
     return {
       roomCode: this.roomCode,
       playerList: Array.from(this.playerList.values()), // Convert Map to an array of key-value pairs
+      host: this.host
     }
   }
 }

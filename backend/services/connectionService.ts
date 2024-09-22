@@ -61,8 +61,12 @@ export default class ConnectionService {
 
     // Iterate over the WebSocket objects in the map
     for (const client of clients.values()) {
+      console.log(`trying to send message to ${client.player.name}`)
       if (client.readyState === WebSocket.OPEN) {
+        console.log("success")
         client.send(jsonMessage)
+      } else {
+        console.log("something went wrong")
       }
     }
   }
@@ -83,7 +87,7 @@ export default class ConnectionService {
     const playerList = room.playerList
     console.log(
       "Sending updated username list to all clients: " +
-        JSON.stringify(playerList),
+       [...playerList],
     )
     const message: BroadcastMessage = {
       event: "update-users",
@@ -102,13 +106,15 @@ export default class ConnectionService {
     if (!roomMap) {
       throw new ReferenceError("The room you are trying to connect to does not exist")
     }
-    roomMap.set(player.deviceId, playerSocket)
+    roomMap.set(player.name, playerSocket)
+
+    console.log(roomMap)
   }
 
   disconnectPlayer(playerSocket: PlayerWebSocket) {
     console.log("Socket closed!")
     const player: Player = playerSocket.player
-    this.connectedPlayers.get(player.connectedGameCode)?.delete(player.deviceId)
+    this.connectedPlayers.get(player.connectedGameCode)?.delete(player.name)
   }
 
   connectHost(host: Host, hostSocket: HostWebSocket) {

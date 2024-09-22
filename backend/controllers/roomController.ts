@@ -45,9 +45,9 @@ export default class RoomController {
         event: "joined-room",
         room: room
       }
-
-      this.connectionService.connectPlayer(player, socket)
+      
       this.roomService.addPlayerToRoom(player, room)
+      this.connectionService.connectPlayer(player, socket)
       this.connectionService.broadcastGameInformation(room)
       this.connectionService.broadcastToPlayer(broadcastMessage, socket)
 
