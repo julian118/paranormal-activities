@@ -6,26 +6,38 @@ import BroadcastMessage from "../types/broadcastMessage.ts"
 import { HostWebSocket } from "../types/hostWebSocket.ts"
 import { Host } from "../models/host.model.ts"
 
-
-
-export default class ConnectionService {
-  /*
+/*
     connected clients data structure:
 [
     [ROOMCODE1 : [
-        [deviceID : SOCKET],
-        [deviceID : SOCKET]
+        [PLAYERNAME : SOCKET],
+        [PLAYERNAME : SOCKET]
         ]
     ],
     [ROOMCODE2 : [
-        [deviceID : SOCKET],
-        [deviceID : SOCKET]
+        [PLAYERNAME : SOCKET],
+        [PLAYERNAME : SOCKET]
         ]
     ]
 ]
     */
+
+export default class ConnectionService {
+  private static instance: ConnectionService
   connectedPlayers: Map<string, Map<string, PlayerWebSocket>> = new Map()
   connectedHosts: Map<string, HostWebSocket> = new Map()
+
+  private constructor() {
+    this.connectedPlayers = new Map()
+    this.connectedHosts = new Map()
+  }
+
+  public static getInstance(): ConnectionService {
+    if (!ConnectionService.instance) {
+      ConnectionService.instance = new ConnectionService()
+    }
+    return ConnectionService.instance
+  }
 
   broadcastToPlayer(message: BroadcastMessage, playerSocket: PlayerWebSocket) {
     const jsonMessage = JSON.stringify(message)
@@ -61,12 +73,8 @@ export default class ConnectionService {
 
     // Iterate over the WebSocket objects in the map
     for (const client of clients.values()) {
-      console.log(`trying to send message to ${client.player.name}`)
       if (client.readyState === WebSocket.OPEN) {
-        console.log("success")
         client.send(jsonMessage)
-      } else {
-        console.log("something went wrong")
       }
     }
   }
@@ -84,11 +92,6 @@ export default class ConnectionService {
 
   // send updated users list to all connected clients
   broadcastGameInformation(room: Room) {
-    const playerList = room.playerList
-    console.log(
-      "Sending updated username list to all clients: " +
-       [...playerList],
-    )
     const message: BroadcastMessage = {
       event: "update-users",
       room: room,
@@ -100,15 +103,42 @@ export default class ConnectionService {
     this.connectedPlayers.set(roomCode, new Map())
   }
 
+  getPlayerSocketsFromNameArray(playerNames: string[], roomCode: string): PlayerWebSocket[] {
+    if (!playerNames || !Array.isArray(playerNames)) {
+      throw new TypeError('playerNames must be a valid array');
+    }
+  
+    this.logPlayers(roomCode);
+    const room = this.connectedPlayers.get(roomCode);
+  
+    if (!room) {
+      throw new ReferenceError(`Room with code ${roomCode} does not exist.`);
+    }
+  
+    return playerNames.map((name) => {
+      const playerSocket = room.get(name);
+  
+      if (!playerSocket) {
+        throw new ReferenceError(
+          `Player with name ${name} does not exist in room ${roomCode}.`,
+        );
+      }
+  
+      return playerSocket;
+    });
+  }
+  
+
   connectPlayer(player: Player, playerSocket: PlayerWebSocket) {
     playerSocket.player = player
-    const roomMap: Map<string, PlayerWebSocket> | undefined = this.connectedPlayers.get(player.connectedGameCode)
+    const roomMap: Map<string, PlayerWebSocket> | undefined = this
+      .connectedPlayers.get(player.connectedGameCode)
     if (!roomMap) {
-      throw new ReferenceError("The room you are trying to connect to does not exist")
+      throw new ReferenceError(
+        "The room you are trying to connect to does not exist",
+      )
     }
     roomMap.set(player.name, playerSocket)
-
-    console.log(roomMap)
   }
 
   disconnectPlayer(playerSocket: PlayerWebSocket) {
@@ -125,100 +155,4 @@ export default class ConnectionService {
   disconnectHost(hostSocket: HostWebSocket) {
     this.connectedHosts.delete(hostSocket.host.hostedGameCode)
   }
-
-  /*
-
-  private createRoom(socket: UserWebSocket) {
-    // create a new room
-    const newRoom: Room = this.gameRoom.createRoom(socket)
-
-    // adding player and room to the map of connected clients
-    this.connectedClients.set(newRoom.roomCode, new Map())
-
-    const message: BroadcastMessage = {
-      event: "create-room",
-      room: newRoom,
-    }
-    this.broadcastToRoom(message, newRoom.roomCode)
-    this.broadcastToPlayer(message, socket)
-  }
-
-  private joinRoom(socket: UserWebSocket, data: BroadcastMessage) {
-    const targetRoom: Room = this.gameRoom.getRoomByCode(data.roomCode)
-    let isPartyLeader = false
-    if (targetRoom?.playerList.size === 0) {
-      isPartyLeader = true
-    }
-    const newPlayer: Player = new Player(
-      data.name,
-      data.roomCode,
-      data.deviceId,
-      isPartyLeader,
-    )
-
-    if (!targetRoom) {
-      const message: BroadcastMessage = {
-        event: "error-room-nonexistent",
-        isError: true,
-        details: "The room you are trying to join does not exist.",
-      }
-      this.broadcastToPlayer(message, socket)
-      return
-    }
-    if (targetRoom.playerList.has(newPlayer.name)) {
-      const message: BroadcastMessage = {
-        event: "error-name-taken",
-        isError: true,
-        details: "Someone in your room already has your name.",
-      }
-      this.broadcastToPlayer(message, socket)
-      return
-    }
-    this.gameRoom.addPlayerToRoom(newPlayer, targetRoom)
-
-    socket.player.deviceId = newPlayer.deviceId
-
-    this.connectedClients.get(newPlayer.connectedGameCode)?.set(
-      newPlayer.deviceId,
-      socket,
-    )
-    const message: BroadcastMessage = {
-      event: "join-room",
-      room: targetRoom,
-    }
-
-    this.broadcastToRoom(message, targetRoom.roomCode)
-    this.broadcastToPlayer(message, socket)
-  }
-
-  private leaveRoom(socket: UserWebSocket) {
-    const targetPlayer: Player = this.gameRoom.getPlayerByDeviceId(
-      socket.deviceId,
-    )
-    if (targetPlayer) {
-      this.gameRoom.removePlayerFromRoom(targetPlayer)
-      this.connectedClients.get(targetPlayer.connectedGameCode)?.delete(
-        targetPlayer.name,
-      )
-      const room: Room = this.gameRoom.getRoomByCode(
-        targetPlayer.connectedGameCode,
-      )
-      if (room) {
-        this.broadcastGameInformation(room)
-      }
-    }
-  }
-
-  disconnectPlayer(socket: UserWebSocket) {
-    console.log("Socket closed!")
-    const player: Player = socket.player
-    this.connectedClients.get(player.connectedGameCode)?.delete(player.deviceId)
-    this.gameRoom.removePlayerFromRoom(player)
-    const room: Room = this.gameRoom.getRoomByCode(
-      player.connectedGameCode,
-    )
-
-    this.broadcastGameInformation(room)
-  }
-    */
 }

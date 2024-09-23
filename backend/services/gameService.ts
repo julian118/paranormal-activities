@@ -1,4 +1,7 @@
+import ConnectionController from "../controllers/connectionController.ts"
 import { Player } from "../models/player.model.ts"
+import { PlayerWebSocket } from "../types/userWebSocket.ts"
+import ConnectionService from "./connectionService.ts"
 
 type BroadcastMessage = {
   [key: string]: any
@@ -7,31 +10,41 @@ type BroadcastMessage = {
 }
 
 export default class GameService {
-  /*
-  informativeMessage(message: string, playerList: Player[]) {
-    console.log(`message: ${message} for players ${playerList}`)
+  private connectionService: ConnectionService
+
+  constructor() {
+    this.connectionService = ConnectionService.getInstance()
+  }
+
+  informativeMessage(message: string, roomCode: string, playerNames: string[]) {
+    let playerSockets: PlayerWebSocket[] = this.connectionService
+      .getPlayerSocketsFromNameArray(playerNames, roomCode)
+
+    console.log(`message: ${message} for players ${playerNames}`)
     const infoMessage: BroadcastMessage = {
       event: "informative-message",
       message: message,
     }
 
-    for (const player of playerList) {
-      if (player.socket.readyState === WebSocket.OPEN) {
-        player.socket.send(JSON.stringify(infoMessage))
+    for (const playerSocket of playerSockets) {
+      if (playerSocket.readyState === WebSocket.OPEN) {
+        playerSocket.send(JSON.stringify(infoMessage))
       }
     }
   }
 
-  clear(playerList: Player[]) {
+  clear(roomCode: string, playerNames: string[]) {
+    let playerSockets: PlayerWebSocket[] = this.connectionService
+      .getPlayerSocketsFromNameArray(playerNames, roomCode)
+
     const infoMessage: BroadcastMessage = {
       event: "clear",
     }
 
-    for (const player of playerList) {
-      if (player.socket.readyState === WebSocket.OPEN) {
-        player.socket.send(JSON.stringify(infoMessage))
+    for (const playerSocket of playerSockets) {
+      if (playerSocket.readyState === WebSocket.OPEN) {
+        playerSocket.send(JSON.stringify(infoMessage))
       }
     }
   }
-    */
 }

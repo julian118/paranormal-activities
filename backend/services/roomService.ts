@@ -1,3 +1,4 @@
+import ConnectionController from "../controllers/connectionController.ts"
 import { Player } from "../models/player.model.ts"
 import { Room } from "../models/room.model.ts"
 import { HostWebSocket } from "../types/hostWebSocket.ts"
@@ -5,7 +6,19 @@ import { HostWebSocket } from "../types/hostWebSocket.ts"
 export default class RoomService {
   //public players: Player[] = []
 
-  private rooms: Map<string, Room> = new Map()
+  private static instance: RoomService
+  private rooms: Map<string, Room>
+
+  private constructor() {
+    this.rooms = new Map()
+  }
+
+  public static getInstance(): RoomService {
+    if (!RoomService.instance) {
+      RoomService.instance = new RoomService()
+    }
+    return RoomService.instance
+  }
 
   logActiveData(): void {
     console.log("amount of active rooms: ", this.rooms.size)
@@ -33,8 +46,12 @@ export default class RoomService {
   }
 
   public createRoom(hostSocket: HostWebSocket, uniqueRoomCode: string): Room {
-
-    const newRoom: Room = new Room(uniqueRoomCode, new Map(), hostSocket.host)
+    const newRoom: Room = new Room(
+      uniqueRoomCode,
+      new Map(),
+      hostSocket.host,
+      true,
+    )
     this.rooms.set(newRoom.roomCode, newRoom)
     return newRoom
   }
@@ -43,19 +60,25 @@ export default class RoomService {
     if (room.playerList.get(player.name)) {
       throw new ReferenceError("Player with this name already exists.")
     }
+    if (room.playerList.size == 0) {
+      player.isPartyLeader = true
+    }
     room.playerList.set(player.name, player)
   }
 
   public removePlayerFromRoom(player: Player) {
     console.log(`${player.name} left the game ${player.connectedGameCode}`)
     const room = this.getRoomByCode(player.connectedGameCode)
+    if (!room.allowQuit) {
+      return
+    }
     room.playerList.delete(player.name)
-
-    if (player.isPartyLeader) {
-      const firstPlayer: Player = room.playerList.values().next().value
-      if (firstPlayer) {
-        firstPlayer.isPartyLeader = true
-      }
+    if (!player.isPartyLeader) {
+      return
+    }
+    const firstPlayer: Player = room.playerList.values().next().value
+    if (firstPlayer) {
+      firstPlayer.isPartyLeader = true
     }
   }
 
@@ -71,13 +94,16 @@ export default class RoomService {
 
   public getPlayerByDeviceId(deviceId: string): Player {
     for (const room of this.rooms.values()) {
-      for (const player of room.playerList.values()) {
-        if (player.deviceId === deviceId) {
-          console.log(`Found player with device id ${deviceId}: ${player.name}`)
-          return player
-        }
+      const player = Array.from(room.playerList.values()).find(
+        (player) => player.deviceId === deviceId,
+      )
+
+      if (player) {
+        console.log(`Found player with device id ${deviceId}: ${player.name}`)
+        return player
       }
     }
+
     throw new ReferenceError(
       `Player with device id: ${deviceId} does not exist.`,
     )
