@@ -19,6 +19,7 @@ interface MessageData {
   player?: Player;
   isError?: boolean;
   details?: string;
+  message?: string;
 }
 
 enum ActivePage {
@@ -34,6 +35,7 @@ export const App: React.FC = () => {
   const [activePage, setActivePage] = useState(ActivePage.Start);
   const [room, setRoom] = useState<Room>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [informativeMessage, setInformativeMessage] = useState<string | null>(null)
 
   const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(
     backendUrl + "/start_player_web_socket",
@@ -72,10 +74,22 @@ export const App: React.FC = () => {
           setErrorMessage(messageData.details!);
           return;
         }
-        setErrorMessage(null);
+        setErrorMessage(null)
 
-        setRoom(messageData.room);
-        setActivePage(ActivePage.Game);
+        switch (messageData.event) {
+          case "joined-room":
+            setRoom(messageData.room);
+            setActivePage(ActivePage.Game);
+            break
+          case "update-users":
+            setRoom(messageData.room)
+            break
+          case "informative-message":
+            setInformativeMessage(messageData.message!)
+            break
+        }
+
+        
       } catch (error) {
         console.error("Failed to parse message data", error);
       }
@@ -95,7 +109,13 @@ export const App: React.FC = () => {
   return (
     <>
       {pageSwitch(activePage)}
-
+      <div className="container">
+        {
+          informativeMessage ?
+          <p>{informativeMessage}</p>
+          : <p>no messages</p>
+        }
+      </div>
       <div className="container">
         {room
           ? <PlayerList players={room.playerList} />

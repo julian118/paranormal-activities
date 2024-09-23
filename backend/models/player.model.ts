@@ -3,7 +3,7 @@ export class Player {
   public connectedGameCode: string
   public deviceId: string
   public isPartyLeader: boolean
-  
+
   constructor(
     name: string,
     connectedGameCode: string,

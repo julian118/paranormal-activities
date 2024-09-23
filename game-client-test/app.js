@@ -46,18 +46,18 @@ function createRoom() {
 }
 
 function informativeMessage() {
-  console.log(recievedData.room.playerList.map((player) => player.deviceId))
+  console.log(recievedData.room.playerList.map((player) => player.deviceId));
 
   socket.send(
     JSON.stringify({
       event: "informative-message",
-      message: "test message for all players",
-      playerDeviceIdList: recievedData.room.playerList.map((player) =>
-        player.deviceId
-      ),
+      message: `WARNING ${recievedData.room.playerList[0].name} SMELLS REALL BAD!`,
+      roomCode: recievedData.room.roomCode,  // Fix: accessing roomCode correctly
+      playerNameArray: recievedData.room.playerList.map((player) => player.name),
     }),
-  )
+  );
 }
+
 
 /*
 // leaving the current room

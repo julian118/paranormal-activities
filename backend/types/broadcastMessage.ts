@@ -1,8 +1,7 @@
-
 type BroadcastMessage = {
-    [key: string]: any
+  [key: string]: any
 } & {
-    event: string
+  event: string
 }
 
 export default BroadcastMessage
