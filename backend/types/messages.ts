@@ -22,9 +22,15 @@ export interface InformativeMessage extends BaseMessage {
   playerNameArray: string[]
   roomCode: string
 }
+export interface ClearMessage extends BaseMessage {
+  event: "clear-message"
+  playerNameArray: string[]
+  roomCode: string
+}
 
 export type Message =
   | JoinRoomMessage
   | LeaveRoomMessage
   | CreateRoomMessage
   | InformativeMessage
+  | ClearMessage

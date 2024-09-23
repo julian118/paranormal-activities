@@ -1,38 +1,24 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import Start from "./pages/Start.tsx";
 import JoinRoomDetails from "./models/JoinRoomDetails.model.ts";
 import useWebSocket from "react-use-websocket";
-import Game from "./pages/Game.tsx";
 import PlayerList from "./components/PlayerList.tsx";
-import Player from "./models/Player.model.ts";
+import MessageData from "./types/messageData.ts";
+import Room from "./models/room.model.ts";
+import Start from "./pages/Start.tsx";
 
-interface Room {
-  roomCode: string;
-  playerList: Player[];
-  deviceId: string;
-}
-
-interface MessageData {
-  event: string;
-  room?: Room;
-  player?: Player;
-  isError?: boolean;
-  details?: string;
-  message?: string;
-}
-
-enum ActivePage {
-  Start,
-  Game,
-  Host,
+enum GameState {
+  Joining,
+  Playing,
+  Reconnecting,
+  End 
 }
 
 const backendUrl = "ws://localhost:8080";
 // const socketConnection = new WebSocket(backendUrl + "/start_web_socket");
 
 export const App: React.FC = () => {
-  const [activePage, setActivePage] = useState(ActivePage.Start);
+  const [gameState, setGameState] = useState(GameState.Joining);
   const [room, setRoom] = useState<Room>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [informativeMessage, setInformativeMessage] = useState<string | null>(null)
@@ -79,7 +65,7 @@ export const App: React.FC = () => {
         switch (messageData.event) {
           case "joined-room":
             setRoom(messageData.room);
-            setActivePage(ActivePage.Game);
+            setGameState(GameState.Playing)
             break
           case "update-users":
             setRoom(messageData.room)
@@ -87,6 +73,8 @@ export const App: React.FC = () => {
           case "informative-message":
             setInformativeMessage(messageData.message!)
             break
+          case "clear":
+            setInformativeMessage(null)
         }
 
         
@@ -96,24 +84,18 @@ export const App: React.FC = () => {
     }
   }, [lastMessage]);
 
-  const pageSwitch = (activePage: ActivePage) => {
-    switch (activePage) {
-      case ActivePage.Game:
-        return <Game></Game>;
-      default:
-        return (
-          <Start onJoinRoom={joinGameHandler} errorMessage={errorMessage} />
-        );
-    }
-  };
   return (
     <>
-      {pageSwitch(activePage)}
+    {
+      gameState == GameState.Joining 
+      ? <Start onJoinRoom={joinGameHandler} errorMessage={errorMessage} />
+      : null
+    }
       <div className="container">
         {
-          informativeMessage ?
-          <p>{informativeMessage}</p>
-          : <p>no messages</p>
+          informativeMessage 
+          ? <h4>{informativeMessage}</h4>
+          : null
         }
       </div>
       <div className="container">

@@ -1,5 +1,5 @@
 import GameService from "../services/gameService.ts"
-import { InformativeMessage } from "../types/messages.ts"
+import { ClearMessage, InformativeMessage } from "../types/messages.ts"
 
 export default class GameController {
   gameService: GameService
@@ -13,5 +13,9 @@ export default class GameController {
       data.roomCode,
       data.playerNameArray,
     )
+  }
+
+  clearMessage(data: ClearMessage) {
+    this.gameService.clear(data.roomCode, data.playerNameArray)
   }
 }

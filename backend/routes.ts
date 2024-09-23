@@ -1,5 +1,6 @@
 // server.ts
 import {
+ClearMessage,
   CreateRoomMessage,
   InformativeMessage,
   JoinRoomMessage,
@@ -19,6 +20,16 @@ const connectionController: ConnectionController = new ConnectionController()
 const roomController: RoomController = new RoomController()
 const gameController: GameController = new GameController()
 
+enum MessageType {
+  JoinRoom = "join-room",
+  LeaveRoom = "leave-room",
+  CreateRoom = "create-room",
+  InformativeMessage = "informative-message",
+  ClearMessage = "clear-message"
+}
+
+
+
 router.get("/start_player_web_socket", async (ctx) => {
   const socket = await ctx.upgrade() as PlayerWebSocket
 
@@ -27,11 +38,11 @@ router.get("/start_player_web_socket", async (ctx) => {
     const data = JSON.parse(message.data)
 
     switch (data.event) {
-      case "join-room": {
+      case MessageType.JoinRoom: {
         roomController.joinRoom(data as JoinRoomMessage, socket)
         break
       }
-      case "leave-room": {
+      case MessageType.LeaveRoom: {
         roomController.leaveRoom(socket)
         break
       }
@@ -44,8 +55,11 @@ router.get("/start_player_web_socket", async (ctx) => {
 
   socket.onclose = () => {
     console.log("client socket closed!")
-    roomController.leaveRoom(socket)
-    connectionController.disconnectPlayer(socket)
+    if (socket.player) {
+      roomController.leaveRoom(socket)
+      connectionController.disconnectPlayer(socket)
+    }
+    
   }
 })
 
@@ -57,16 +71,20 @@ router.get("/start_host_web_socket", async (ctx) => {
     const data = JSON.parse(message.data)
 
     switch (data.event) {
-      case "create-room": {
+      case MessageType.CreateRoom: {
         roomController.createRoom(data as CreateRoomMessage, hostSocket)
         break
       }
-      case "informative-message": {
+      case MessageType.InformativeMessage: {
         gameController.informativeMessage(data as InformativeMessage)
         break
       }
+      case MessageType.ClearMessage: {
+        gameController.clearMessage(data as ClearMessage)
+        break
+      }
       default:
-        console.error("invalid message recieved")
+        console.error(`invalid message: ${data.event} is not a valid message`)
     }
   }
 
