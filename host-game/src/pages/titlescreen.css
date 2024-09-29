@@ -1,4 +1,7 @@
 
+.unset {
+  all: unset;
+}
 .main-logo {
     width: 50vh;
   }
@@ -30,3 +33,5 @@
     background-position-y: 100%;
     background-repeat: repeat-x;
   }
+
+  

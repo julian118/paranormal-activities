@@ -2,6 +2,7 @@ import React from 'react'
 import logo from '../assets/paranormal-logo.png'
 import './titlescreen.css'
 import { useAnimate, stagger, motion } from "framer-motion"
+import { Link } from 'react-router-dom'
 
 const titlescreen: React.FC = () => {
     const list = {
@@ -47,11 +48,12 @@ const titlescreen: React.FC = () => {
                     <motion.button 
                         variants={item} 
                         whileHover={hover} 
-                        className='main-button'>play</motion.button>
+                        
+                        className='main-button'><Link className='unset' to="/lobby">play</Link></motion.button>
                     <motion.button 
                         variants={item} 
                         whileHover={hover} 
-                        className='main-button'>settings</motion.button>
+                        className='main-button'><Link className='unset' to="/lobby">settings</Link></motion.button>
                     <motion.button 
                         variants={item} 
                         whileHover={hover} 
