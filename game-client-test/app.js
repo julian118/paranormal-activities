@@ -53,6 +53,18 @@ function clearMessage() {
   )
 }
 
+function inputMessage() {
+  const message = JSON.stringify({
+    event: "input-message",
+    roomCode: receivedData.room.roomCode,
+    playerNameArray: receivedData.room.playerList.map((player) => player.name),
+    message: "enter your favorite animal",
+    placeholder: "turtle"
+  })
+
+  socket.send(message)
+}
+
 socket.onmessage = (message) => {
   const data = JSON.parse(message.data)
   displayData(data)

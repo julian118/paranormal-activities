@@ -1,8 +1,10 @@
 // server.ts
 import {
+AnswerMessage,
 ClearMessage,
   CreateRoomMessage,
   InformativeMessage,
+  InputMessage,
   JoinRoomMessage,
 } from "./types/messages.ts"
 import { Application, Router } from "https://deno.land/x/oak/mod.ts"
@@ -25,9 +27,10 @@ enum MessageType {
   LeaveRoom = "leave-room",
   CreateRoom = "create-room",
   InformativeMessage = "informative-message",
-  ClearMessage = "clear-message"
+  ClearMessage = "clear-message",
+  InputMessage = "input-message",
+  AnswerPrompt = "answer-prompt"
 }
-
 
 
 router.get("/start_player_web_socket", async (ctx) => {
@@ -44,6 +47,10 @@ router.get("/start_player_web_socket", async (ctx) => {
       }
       case MessageType.LeaveRoom: {
         roomController.leaveRoom(socket)
+        break
+      }
+      case MessageType.AnswerPrompt: {
+        gameController.answerPrompt(data as AnswerMessage, socket)
         break
       }
     }
@@ -81,6 +88,10 @@ router.get("/start_host_web_socket", async (ctx) => {
       }
       case MessageType.ClearMessage: {
         gameController.clearMessage(data as ClearMessage)
+        break
+      }
+      case MessageType.InputMessage: {
+        gameController.inputMessage(data as InputMessage)
         break
       }
       default:

@@ -8,4 +8,5 @@ export default interface MessageData {
     isError?: boolean;
     details?: string;
     message?: string;
+    placeholder?: string;
   }

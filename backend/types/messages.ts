@@ -27,6 +27,18 @@ export interface ClearMessage extends BaseMessage {
   playerNameArray: string[]
   roomCode: string
 }
+export interface InputMessage extends BaseMessage {
+  event: "input-message",
+  playerNameArray: string[],
+  roomCode: string,
+  message: string,
+  placeholder: string
+}
+
+export interface AnswerMessage extends BaseMessage {
+  event: "answer-prompt"
+  answer: string
+}
 
 export type Message =
   | JoinRoomMessage
@@ -34,3 +46,5 @@ export type Message =
   | CreateRoomMessage
   | InformativeMessage
   | ClearMessage
+  | InputMessage
+  | AnswerMessage

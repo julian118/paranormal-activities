@@ -1,0 +1,32 @@
+
+.main-logo {
+    width: 50vh;
+  }
+  .main-options {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+  .main-button {
+    transition: .2s;
+    background: none;
+    border: none;
+    width: fit-content;
+    font-family: scary;
+    font-size: 3rem;
+  }
+  
+  .main-button:hover {
+    transform: scale(1.2);
+    cursor: pointer;
+    color: crimson;
+  }
+  .background {
+    height: 100vh;
+    overflow-x: hidden;
+    background-image: url('../assets/candles2.png');
+    background-size: 45% auto;
+    background-position-y: 100%;
+    background-repeat: repeat-x;
+  }

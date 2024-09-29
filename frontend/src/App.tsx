@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import "./App.css";
 import JoinRoomDetails from "./models/JoinRoomDetails.model.ts";
 import useWebSocket from "react-use-websocket";
@@ -6,6 +6,7 @@ import PlayerList from "./components/PlayerList.tsx";
 import MessageData from "./types/messageData.ts";
 import Room from "./models/room.model.ts";
 import Start from "./pages/Start.tsx";
+import InputMessage from "./components/InputMessage.tsx";
 
 enum GameState {
   Joining,
@@ -21,7 +22,9 @@ export const App: React.FC = () => {
   const [gameState, setGameState] = useState(GameState.Joining);
   const [room, setRoom] = useState<Room>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [informativeMessage, setInformativeMessage] = useState<string | null>(null)
+  const [informativeMessage, setInformativeMessage] = useState<string | null>(null);
+
+  const [gameComponent, setGameComponent] = useState<ReactNode | null>(null)
 
   const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(
     backendUrl + "/start_player_web_socket",
@@ -51,6 +54,15 @@ export const App: React.FC = () => {
     }));
   };
 
+  const answerHandler = (answer: string) => {
+    console.log(`sending: ${answer}`);
+    sendMessage(JSON.stringify({
+      event: "answer-prompt",
+      answer: answer,
+    }));
+  }
+
+
   useEffect(() => {
     if (lastMessage !== null) {
       try {
@@ -71,10 +83,16 @@ export const App: React.FC = () => {
             setRoom(messageData.room)
             break
           case "informative-message":
-            setInformativeMessage(messageData.message!)
+            setGameComponent(<p>{messageData.message}</p>)
+            break
+          case "input-message":
+            setGameComponent(<InputMessage 
+              onSubmit={answerHandler}
+              placeholder={messageData.placeholder!} 
+              message={messageData.message!}></InputMessage>)
             break
           case "clear":
-            setInformativeMessage(null)
+            setGameComponent(null)
         }
 
         
@@ -102,6 +120,9 @@ export const App: React.FC = () => {
         {room
           ? <PlayerList players={room.playerList} />
           : <i>No room joined.</i>}
+      </div>
+      <div className="container">
+        {gameComponent}
       </div>
     </>
   );

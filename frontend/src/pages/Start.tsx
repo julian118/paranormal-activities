@@ -11,9 +11,7 @@ const Start: React.FC<StartProps> = (props) => {
   const maxNameLength: number = 15;
   const maxRoomCodeLength: number = 4;
 
-  const [enteredRoomDetails, setEnteredRoomDetails] = useState<
-    JoinRoomDetails
-  >();
+  const [enteredRoomDetails, setEnteredRoomDetails] = useState<JoinRoomDetails>();
   const [roomcode, setRoomCode] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [validRoomcode, setValidRoomcode] = useState<boolean>(false);
@@ -96,8 +94,8 @@ const Start: React.FC<StartProps> = (props) => {
       >
         play
       </button>
-      <br />
-      <br />
+      <br/>
+      <br/>
       {props.errorMessage
         ? (
           <div className="alert alert-danger" role="alert">

@@ -1,5 +1,6 @@
 import ConnectionController from "../controllers/connectionController.ts"
 import { Player } from "../models/player.model.ts"
+import { HostWebSocket } from "../types/hostWebSocket.ts"
 import { PlayerWebSocket } from "../types/userWebSocket.ts"
 import ConnectionService from "./connectionService.ts"
 
@@ -10,6 +11,8 @@ type BroadcastMessage = {
 }
 
 export default class GameService {
+  
+  
   private connectionService: ConnectionService
 
   constructor() {
@@ -17,7 +20,7 @@ export default class GameService {
   }
 
   informativeMessage(message: string, roomCode: string, playerNames: string[]) {
-    let playerSockets: PlayerWebSocket[] = this.connectionService
+    const playerSockets: PlayerWebSocket[] = this.connectionService
       .getPlayerSocketsFromNameArray(playerNames, roomCode)
 
     console.log(`message: ${message} for players ${playerNames}`)
@@ -33,8 +36,35 @@ export default class GameService {
     }
   }
 
+  inputMessage(message: string, placeholder: string, roomCode: string, playerNames: string[]) {
+    const playerSockets: PlayerWebSocket[] = this.connectionService.getPlayerSocketsFromNameArray(playerNames, roomCode)
+    const inputMessage: BroadcastMessage = {
+      event: "input-message",
+      message: message,
+      placeholder: placeholder
+    }
+
+    for (const playerSocket of playerSockets) {
+      if (playerSocket.readyState === WebSocket.OPEN) {
+        playerSocket.send(JSON.stringify(inputMessage))
+      }
+    }
+  }
+  answerMessage(answer: string, playerWebSocket: PlayerWebSocket) {
+    const answerMessage: BroadcastMessage = {
+      event: "answer-message",
+      answer: answer
+    }
+    const roomCode: string = playerWebSocket.player.connectedGameCode
+    const host: HostWebSocket | undefined = this.connectionService.connectedHosts.get(roomCode)
+    if (host) {
+      this.connectionService.broadcastToHost(answerMessage, host)
+    }
+    
+  }
+
   clear(roomCode: string, playerNames: string[]) {
-    let playerSockets: PlayerWebSocket[] = this.connectionService
+    const playerSockets: PlayerWebSocket[] = this.connectionService
       .getPlayerSocketsFromNameArray(playerNames, roomCode)
 
     const infoMessage: BroadcastMessage = {
