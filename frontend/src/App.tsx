@@ -4,7 +4,7 @@ import JoinRoomDetails from "./models/JoinRoomDetails.model.ts";
 import useWebSocket from "react-use-websocket";
 import PlayerList from "./components/PlayerList.tsx";
 import MessageData from "./types/messageData.ts";
-import Room from "./models/room.model.ts";
+import Room from "./models/Room.model.ts";
 import Start from "./pages/Start.tsx";
 import InputMessage from "./components/InputMessage.tsx";
 

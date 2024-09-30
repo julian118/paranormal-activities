@@ -53,7 +53,7 @@ const titlescreen: React.FC = () => {
                     <motion.button 
                         variants={item} 
                         whileHover={hover} 
-                        className='main-button'><Link className='unset' to="/lobby">settings</Link></motion.button>
+                        className='main-button'><Link className='unset' to="/settings">settings</Link></motion.button>
                     <motion.button 
                         variants={item} 
                         whileHover={hover} 
