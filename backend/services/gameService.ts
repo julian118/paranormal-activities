@@ -11,8 +11,6 @@ type BroadcastMessage = {
 }
 
 export default class GameService {
-  
-  
   private connectionService: ConnectionService
 
   constructor() {
@@ -36,12 +34,18 @@ export default class GameService {
     }
   }
 
-  inputMessage(message: string, placeholder: string, roomCode: string, playerNames: string[]) {
-    const playerSockets: PlayerWebSocket[] = this.connectionService.getPlayerSocketsFromNameArray(playerNames, roomCode)
+  inputMessage(
+    message: string,
+    placeholder: string,
+    roomCode: string,
+    playerNames: string[],
+  ) {
+    const playerSockets: PlayerWebSocket[] = this.connectionService
+      .getPlayerSocketsFromNameArray(playerNames, roomCode)
     const inputMessage: BroadcastMessage = {
       event: "input-message",
       message: message,
-      placeholder: placeholder
+      placeholder: placeholder,
     }
 
     for (const playerSocket of playerSockets) {
@@ -53,14 +57,16 @@ export default class GameService {
   answerMessage(answer: string, playerWebSocket: PlayerWebSocket) {
     const answerMessage: BroadcastMessage = {
       event: "answer-message",
-      answer: answer
+      answer: answer,
+      roomCode: playerWebSocket.player.connectedGameCode,
+      player: playerWebSocket.player.name
     }
     const roomCode: string = playerWebSocket.player.connectedGameCode
-    const host: HostWebSocket | undefined = this.connectionService.connectedHosts.get(roomCode)
+    const host: HostWebSocket | undefined = this.connectionService
+      .connectedHosts.get(roomCode)
     if (host) {
       this.connectionService.broadcastToHost(answerMessage, host)
     }
-    
   }
 
   clear(roomCode: string, playerNames: string[]) {

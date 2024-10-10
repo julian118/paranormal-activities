@@ -28,10 +28,10 @@ export interface ClearMessage extends BaseMessage {
   roomCode: string
 }
 export interface InputMessage extends BaseMessage {
-  event: "input-message",
-  playerNameArray: string[],
-  roomCode: string,
-  message: string,
+  event: "input-message"
+  playerNameArray: string[]
+  roomCode: string
+  message: string
   placeholder: string
 }
 

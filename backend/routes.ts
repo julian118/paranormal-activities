@@ -1,7 +1,7 @@
 // server.ts
 import {
-AnswerMessage,
-ClearMessage,
+  AnswerMessage,
+  ClearMessage,
   CreateRoomMessage,
   InformativeMessage,
   InputMessage,
@@ -29,9 +29,8 @@ enum MessageType {
   InformativeMessage = "informative-message",
   ClearMessage = "clear-message",
   InputMessage = "input-message",
-  AnswerPrompt = "answer-prompt"
+  AnswerPrompt = "answer-prompt",
 }
-
 
 router.get("/start_player_web_socket", async (ctx) => {
   const socket = await ctx.upgrade() as PlayerWebSocket
@@ -66,7 +65,6 @@ router.get("/start_player_web_socket", async (ctx) => {
       roomController.leaveRoom(socket)
       connectionController.disconnectPlayer(socket)
     }
-    
   }
 })
 

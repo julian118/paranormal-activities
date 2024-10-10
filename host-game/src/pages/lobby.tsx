@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import './lobby.css';
 import { useEffect } from 'react';
 import Room from '../models/Room.model';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import PlayerList from '../components/PlayerList';
 
 type LobbyProps = {
@@ -12,6 +12,7 @@ type LobbyProps = {
 }
 
 const Lobby: React.FC<LobbyProps> = ({ room, createRoom }) => {
+  const navigate = useNavigate()
   const hover = {
     y: [-15, -35, 0, -30, 0, -15],
     rotate: [0, 5, -5, -5, 5, 0],
@@ -29,6 +30,10 @@ const Lobby: React.FC<LobbyProps> = ({ room, createRoom }) => {
         createRoom()
     }
   }, [room, createRoom]);
+
+  const handlePlayClick = () => {
+    navigate('/game')
+  }
 
   if (!room) {
     return(
@@ -51,6 +56,9 @@ const Lobby: React.FC<LobbyProps> = ({ room, createRoom }) => {
         </motion.h1>
       </div>
       <br />
+      <button className='btn btn-primary' onClick={handlePlayClick}>
+            Play
+        </button>
         <PlayerList players={room.playerList}></PlayerList>
     </div>
   );

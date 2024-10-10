@@ -49,14 +49,15 @@ export default class RoomController {
         message.deviceId,
         false,
       )
-      const broadcastMessage: BroadcastMessage = {
-        event: "joined-room",
-        room: room,
-      }
 
       this.roomService.addPlayerToRoom(player, room)
       this.connectionService.connectPlayer(player, socket)
       this.connectionService.broadcastGameInformation(room)
+
+      const broadcastMessage: BroadcastMessage = {
+        event: "update-self",
+        player: player,
+      }
       this.connectionService.broadcastToPlayer(broadcastMessage, socket)
     } catch (error: unknown) {
       if (error instanceof ReferenceError) {

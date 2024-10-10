@@ -102,31 +102,33 @@ export default class ConnectionService {
     this.connectedPlayers.set(roomCode, new Map())
   }
 
-  getPlayerSocketsFromNameArray(playerNames: string[], roomCode: string): PlayerWebSocket[] {
+  getPlayerSocketsFromNameArray(
+    playerNames: string[],
+    roomCode: string,
+  ): PlayerWebSocket[] {
     if (!playerNames || !Array.isArray(playerNames)) {
-      throw new TypeError('playerNames must be a valid array');
+      throw new TypeError("playerNames must be a valid array")
     }
-  
-    this.logPlayers(roomCode);
-    const room = this.connectedPlayers.get(roomCode);
-  
+
+    this.logPlayers(roomCode)
+    const room = this.connectedPlayers.get(roomCode)
+
     if (!room) {
-      throw new ReferenceError(`Room with code ${roomCode} does not exist.`);
+      throw new ReferenceError(`Room with code ${roomCode} does not exist.`)
     }
-  
+
     return playerNames.map((name) => {
-      const playerSocket = room.get(name);
-  
+      const playerSocket = room.get(name)
+
       if (!playerSocket) {
         throw new ReferenceError(
           `Player with name ${name} does not exist in room ${roomCode}.`,
-        );
+        )
       }
-  
-      return playerSocket;
-    });
+
+      return playerSocket
+    })
   }
-  
 
   connectPlayer(player: Player, playerSocket: PlayerWebSocket) {
     playerSocket.player = player

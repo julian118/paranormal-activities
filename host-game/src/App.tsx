@@ -7,6 +7,8 @@ import music from './assets/ominous.mp3';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Room from './models/Room.model';
 import MessageData from './types/messageData';
+import Game from './pages/game';
+import { h1 } from 'framer-motion/client';
 
 const backendUrl = "ws://localhost:8080";
 
@@ -41,7 +43,6 @@ function App() {
   }
 
   const createRoom = () => {
-    console.log('tryna make a room bitches')
     sendMessage(
       JSON.stringify({
         event: "create-room",
@@ -73,6 +74,11 @@ function App() {
           <Route path="/lobby" index element={
             <Lobby room={room} createRoom={createRoom} />
             } />
+          <Route path="/game" index element={
+            room
+            ? <Game room={room} sendMessage={sendMessage} />
+            : <h1>no room joined</h1>
+          } />
         </Routes>
       </BrowserRouter>
       <audio ref={audioRef} src={music} loop />
