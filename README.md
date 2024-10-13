@@ -4,6 +4,7 @@ Paranormal Activities is a multiplatform multiplayer game, inspired by different
 
 # game flow
 The game flow for paranormal activities is as follows:
+
 ![image](/documentation/flow-diagram-host.png)
 ![image](/documentation/flow-diagram-game.png)
 
