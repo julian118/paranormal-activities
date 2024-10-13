@@ -24,7 +24,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [informativeMessage, setInformativeMessage] = useState<string | null>(null);
 
-  const [gameComponent, setGameComponent] = useState<ReactNode | null>(null)
+  const [gameComponent, setGameComponent] = useState<ReactNode | null>(<><p>waiting for something interesting to happen</p></>)
 
   const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(
     backendUrl + "/start_player_web_socket",
@@ -118,11 +118,6 @@ export const App: React.FC = () => {
           ? <h4>{informativeMessage}</h4>
           : null
         }
-      </div>
-      <div className="container">
-        {room
-          ? <PlayerList players={room.playerList} />
-          : <i>No room joined.</i>}
       </div>
       <div className="container">
         {gameComponent}
