@@ -81,6 +81,7 @@ export const App: React.FC = () => {
             break
           case "update-users":
             setRoom(messageData.room)
+            setGameState(GameState.Playing)
             break
           case "informative-message":
             setGameComponent(<p>{messageData.message}</p>)
@@ -93,6 +94,8 @@ export const App: React.FC = () => {
             break
           case "clear":
             setGameComponent(null)
+          default:
+            console.log('default message')
         }
 
         
