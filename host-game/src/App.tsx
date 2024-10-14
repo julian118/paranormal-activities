@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef, createContext } from 'react';
 import useWebSocket from "react-use-websocket";
-import Titlescreen from './pages/titlescreen';
-import Settings from './pages/settings';
-import Lobby from './pages/lobby';
+import Titlescreen from './pages/titlescreen/titlescreen';
+import Settings from './pages/settings/settings';
+import Lobby from './pages/lobby/lobby';
 import music from './assets/ominous.mp3';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import Room from './models/Room.model';
 import MessageData from './types/messageData';
-import Game from './pages/game';
+import Game from './pages/game/game';
 import { h1 } from 'framer-motion/client';
 
 const backendUrl = "ws://localhost:8080";
@@ -64,6 +64,7 @@ function App() {
       playAudio();
     }
   }, [location.pathname])
+
 
   return (
     <>

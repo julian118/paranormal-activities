@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react"
 import { SendMessage } from "react-use-websocket"
-import Room from "../models/Room.model"
-import Player from "../models/Player.model"
-import Timer from "../components/timer"
+import Room from "../../models/Room.model"
+import Player from "../../models/Player.model"
+import Timer from "../../components/timer"
+import { useNavigate } from "react-router-dom"
 
 interface gameProps {
     sendMessage: SendMessage
@@ -11,10 +12,17 @@ interface gameProps {
 const Game: React.FC<gameProps> = (props) => {
     const [gameScreen, setGameScreen] = useState<JSX.Element>(<h1>nothing</h1>)
     const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+    const navigate = useNavigate()
     
     function getPlayerNameList(playerList: Player[]): string[] {
         return playerList.map(player => player.name)
     }
+
+    useEffect(() => {
+        if (!props.room) {
+          navigate('/');
+        }
+      }, [props.room, navigate]);
 
     useEffect(() => {
         const runGameFlow = async () => {
