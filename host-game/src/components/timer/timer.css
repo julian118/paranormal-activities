@@ -1,0 +1,8 @@
+.timer {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.stopwatch {
+    transform: translateY(-100%);
+}

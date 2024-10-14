@@ -23,9 +23,7 @@ export const App: React.FC = () => {
   const [room, setRoom] = useState<Room>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [informativeMessage, setInformativeMessage] = useState<string | null>(null);
-
   const [gameComponent, setGameComponent] = useState<ReactNode | null>(<><p>waiting for something interesting to happen</p></>)
-
   const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(
     backendUrl + "/start_player_web_socket",
     {
@@ -55,6 +53,7 @@ export const App: React.FC = () => {
   };
 
   const answerHandler = (answer: string) => {
+    
     console.log(`sending: ${answer}`);
     sendMessage(JSON.stringify({
       event: "answer-prompt",
@@ -112,16 +111,16 @@ export const App: React.FC = () => {
       ? <Start onJoinRoom={joinGameHandler} errorMessage={errorMessage} />
       : null
     }
-      <div className="container">
-        {
-          informativeMessage 
-          ? <h4>{informativeMessage}</h4>
-          : null
-        }
-      </div>
-      <div className="container">
-        {gameComponent}
-      </div>
+    {
+      informativeMessage 
+      ? <h4>{informativeMessage}</h4>
+      : null
+    }
+    {
+      gameState == GameState.Playing
+      ? gameComponent
+      : null
+    }
     </>
   );
 };

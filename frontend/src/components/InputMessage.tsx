@@ -8,7 +8,9 @@ interface InputMessageProps {
 }
 const PlayerList: React.FC<InputMessageProps> = (props) => {
     const [answer, setAnswer] = useState<string>('')
+    const [answerSubmitted, setAnswerSubmitted] = useState<boolean>(false)
     const handleSubmit = () => {
+        setAnswerSubmitted(true)
         props.onSubmit(answer)
     }
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -17,6 +19,11 @@ const PlayerList: React.FC<InputMessageProps> = (props) => {
         if ((inputValue.length + 1) <= 20) {
             setAnswer(inputValue);
         }
+    }
+    if (answerSubmitted) {
+        return (
+            <p>you subitted {answer}</p>
+        )
     }
     return (
     <>
