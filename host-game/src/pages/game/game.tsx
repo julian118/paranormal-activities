@@ -2,8 +2,9 @@ import { useEffect, useState } from "react"
 import { SendMessage } from "react-use-websocket"
 import Room from "../../models/Room.model"
 import Player from "../../models/Player.model"
-import Timer from "../../components/timer"
+import Timer from "../../components/timer/timer"
 import { useNavigate } from "react-router-dom"
+import './game.css'
 
 interface gameProps {
     sendMessage: SendMessage
@@ -85,7 +86,7 @@ const Game: React.FC<gameProps> = (props) => {
     }
 
     return (
-        <div className="d-flex justify-content-center flex-column">
+        <div className="game-container">
             {gameScreen}
         </div>
     )

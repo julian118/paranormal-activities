@@ -4,7 +4,7 @@ import './lobby.css';
 import { useEffect } from 'react';
 import Room from '../../models/Room.model';
 import { Link, useNavigate } from 'react-router-dom';
-import PlayerList from '../../components/PlayerList';
+import PlayerList from '../../components/playerList/PlayerList'
 
 type LobbyProps = {
   room?: Room;

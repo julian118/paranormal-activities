@@ -55,7 +55,9 @@ function App() {
     if (lastMessage !== null) {
       const messageData: MessageData = JSON.parse(lastMessage.data);
       console.log("Parsed message data:", messageData);
-      setRoom(new Room(messageData.room!.roomCode, messageData.room!.playerList, messageData.room!.deviceId));  
+      if (messageData.room) {
+        setRoom(new Room(messageData.room.roomCode, messageData.room.playerList, messageData.room.deviceId));  
+      }
     }
   }, [lastMessage]);
 
