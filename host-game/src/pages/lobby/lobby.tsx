@@ -1,4 +1,4 @@
-import logo from '../../assets/paranormal-logo.png';
+import logo from '../../assets/images/paranormal-logo.png';
 import { motion } from "framer-motion";
 import './lobby.css';
 import { useEffect } from 'react';
@@ -56,7 +56,7 @@ const Lobby: React.FC<LobbyProps> = ({ room, createRoom }) => {
         </motion.h1>
       </div>
       <br />
-      <button className='btn btn-primary' onClick={handlePlayClick}>
+      <button className='btn btn-dark' onClick={handlePlayClick}>
             Play
         </button>
         <PlayerList players={room.playerList}></PlayerList>

@@ -1,5 +1,5 @@
 import React from 'react'
-import logo from '../../assets/paranormal-logo.png'
+import logo from '../../assets/images/paranormal-logo.png'
 import './titlescreen.css'
 import { useAnimate, stagger, motion } from "framer-motion"
 import { Link } from 'react-router-dom'
