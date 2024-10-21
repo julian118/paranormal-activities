@@ -54,11 +54,11 @@ export default class ConnectionService {
 
   broadcastToRoom(message: BroadcastMessage, room: Room) {
     const jsonMessage = JSON.stringify(message)
-    const clients = this.connectedPlayers.get(room.roomCode)
-    const host = this.connectedHosts.get(room.roomCode)
+    const clients = this.connectedPlayers.get(room.roomcode)
+    const host = this.connectedHosts.get(room.roomcode)
 
     if (!host) {
-      throw new ReferenceError(`Host for room ${room.roomCode} not found`)
+      throw new ReferenceError(`Host for room ${room.roomcode} not found`)
     }
 
     if (host.readyState === WebSocket.OPEN) {
@@ -67,7 +67,7 @@ export default class ConnectionService {
 
     // Check if there are any clients for the room
     if (!clients) {
-      throw new ReferenceError(`No clients found for room ${room.roomCode}`)
+      throw new ReferenceError(`No clients found for room ${room.roomcode}`)
     }
 
     // Iterate over the WebSocket objects in the map
@@ -98,23 +98,23 @@ export default class ConnectionService {
     this.broadcastToRoom(message, room)
   }
 
-  addRoomConnection(roomCode: string) {
-    this.connectedPlayers.set(roomCode, new Map())
+  addRoomConnection(roomcode: string) {
+    this.connectedPlayers.set(roomcode, new Map())
   }
 
   getPlayerSocketsFromNameArray(
     playerNames: string[],
-    roomCode: string,
+    roomcode: string,
   ): PlayerWebSocket[] {
     if (!playerNames || !Array.isArray(playerNames)) {
       throw new TypeError("playerNames must be a valid array")
     }
 
-    this.logPlayers(roomCode)
-    const room = this.connectedPlayers.get(roomCode)
+    this.logPlayers(roomcode)
+    const room = this.connectedPlayers.get(roomcode)
 
     if (!room) {
-      throw new ReferenceError(`Room with code ${roomCode} does not exist.`)
+      throw new ReferenceError(`Room with code ${roomcode} does not exist.`)
     }
 
     return playerNames.map((name) => {
@@ -122,7 +122,7 @@ export default class ConnectionService {
 
       if (!playerSocket) {
         throw new ReferenceError(
-          `Player with name ${name} does not exist in room ${roomCode}.`,
+          `Player with name ${name} does not exist in room ${roomcode}.`,
         )
       }
 

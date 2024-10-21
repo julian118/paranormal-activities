@@ -46,7 +46,7 @@ export const App: React.FC = () => {
     console.log(`sending: ${joinDetails}`);
     sendMessage(JSON.stringify({
       event: "join-room",
-      roomCode: joinDetails.roomcode,
+      roomcode: joinDetails.roomcode,
       name: joinDetails.name,
       deviceId: getDeviceId(),
     }));

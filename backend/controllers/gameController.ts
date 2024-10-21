@@ -1,4 +1,5 @@
 import ConnectionService from "../services/connectionService.ts"
+import GameLoop from "../services/gameLoop.ts"
 import GameService from "../services/gameService.ts"
 import { HostWebSocket } from "../types/hostWebSocket.ts"
 import {
@@ -6,6 +7,7 @@ import {
   ClearMessage,
   InformativeMessage,
   InputMessage,
+  StartGameMessage,
 } from "../types/messages.ts"
 import { PlayerWebSocket } from "../types/userWebSocket.ts"
 
@@ -17,23 +19,29 @@ export default class GameController {
     this.connectionService = ConnectionService.getInstance()
   }
 
+  startGameLoop(data: StartGameMessage) {
+    const roomcode: string = data.roomcode
+    const gameloop: GameLoop = new GameLoop(roomcode)
+    gameloop.main()
+  }
+
   informativeMessage(data: InformativeMessage) {
     this.gameService.informativeMessage(
       data.message,
-      data.roomCode,
+      data.roomcode,
       data.playerNameArray,
     )
   }
 
   clearMessage(data: ClearMessage) {
-    this.gameService.clear(data.roomCode, data.playerNameArray)
+    this.gameService.clear(data.roomcode, data.playerNameArray)
   }
 
   inputMessage(data: InputMessage) {
     this.gameService.inputMessage(
       data.message,
       data.placeholder,
-      data.roomCode,
+      data.roomcode,
       data.playerNameArray,
     )
   }

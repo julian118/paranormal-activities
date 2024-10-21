@@ -5,6 +5,8 @@ import Player from "../../models/Player.model"
 import Timer from "../../components/timer/timer"
 import { useNavigate } from "react-router-dom"
 import './game.css'
+import { getPlayerNameList } from '../utils/playerUtils'
+
 
 interface gameProps {
     sendMessage: SendMessage
@@ -14,10 +16,6 @@ const Game: React.FC<gameProps> = (props) => {
     const [gameScreen, setGameScreen] = useState<JSX.Element>(<h1>nothing</h1>)
     const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
     const navigate = useNavigate()
-    
-    function getPlayerNameList(playerList: Player[]): string[] {
-        return playerList.map(player => player.name)
-    }
 
     useEffect(() => {
         if (!props.room) {
@@ -25,32 +23,12 @@ const Game: React.FC<gameProps> = (props) => {
         }
       }, [props.room, navigate]);
 
-    useEffect(() => {
-        const runGameFlow = async () => {
-            displayExplanation()
-            await sleep(5000)
-            awaitQuestionPrompt()
-            await sleep(25000)
-            displayPlayerScores()
-            await sleep(5000)  
-        }
 
-        runGameFlow()
-    }, [])
-
-    const displayExplanation = () => {
-        setGameScreen(
-            <>
-                <h1>explanation</h1>
-                <Timer duration={5}/>
-            </>
-        )
-    }
     const awaitQuestionPrompt = () => {
         props.sendMessage(JSON.stringify({
             event: "input-message",
             playerNameArray: getPlayerNameList(props.room.playerList),
-            roomCode: props.room.roomCode,
+            roomcode: props.room.roomcode,
             message: "message here",
             placeholder: "placeholder"
           }))
@@ -59,30 +37,6 @@ const Game: React.FC<gameProps> = (props) => {
             <h1>answer the question on your device</h1>
             <Timer duration={25}/>
         </>)
-    }
-    const displayPlayerScores = () => {
-        props.sendMessage(JSON.stringify({
-            event: "clear-message",
-            playerNameArray: getPlayerNameList(props.room.playerList),
-            roomCode: props.room.roomCode,
-          }))
-        setGameScreen(<>
-            <h1>player scores</h1>
-            <Timer duration={5}/>
-        </>)
-    }
-    
-    const awaitPickBestQuestions = () => {
-
-    }
-    const awaitAnswer = () => {
-
-    }
-    const displayAnswer = () => {
-
-    }
-    const awaitVoting = () => {
-
     }
 
     return (

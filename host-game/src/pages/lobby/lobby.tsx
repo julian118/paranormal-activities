@@ -1,17 +1,21 @@
 import logo from '../../assets/images/paranormal-logo.png';
 import { motion } from "framer-motion";
 import './lobby.css';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Room from '../../models/Room.model';
 import { Link, useNavigate } from 'react-router-dom';
 import PlayerList from '../../components/playerList/PlayerList'
+import { SendMessage } from 'react-use-websocket';
+import { getPlayerNameList } from '../utils/playerUtils'
+import { getDeviceId } from '../utils/deviceUtils';
 
 type LobbyProps = {
-  room?: Room;
-  createRoom: () => void;
+  sendMessage: SendMessage
+  room: Room | null
+  setRoom: React.Dispatch<React.SetStateAction<Room | null>>
 }
 
-const Lobby: React.FC<LobbyProps> = ({ room, createRoom }) => {
+const Lobby: React.FC<LobbyProps> = ({ sendMessage, room, setRoom }) => {
   const navigate = useNavigate()
   const hover = {
     y: [-15, -35, 0, -30, 0, -15],
@@ -26,12 +30,19 @@ const Lobby: React.FC<LobbyProps> = ({ room, createRoom }) => {
   };
 
   useEffect(() => {
-    if (!room) {
-        createRoom()
-    }
-  }, [room, createRoom]);
+    sendMessage(
+      JSON.stringify({
+        event: "create-room",
+        deviceId: getDeviceId(),
+      })
+    )
+  }, [sendMessage])
 
   const handlePlayClick = () => {
+    sendMessage(JSON.stringify({
+      event: "start-game",
+      roomcode: room!.roomcode,
+    }))
     navigate('/game')
   }
 
@@ -52,7 +63,7 @@ const Lobby: React.FC<LobbyProps> = ({ room, createRoom }) => {
           animate={hover}
           transition={hoverTransition}
           className='room-code'>
-          {room!.roomCode}
+          {room!.roomcode}
         </motion.h1>
       </div>
       <br />

@@ -6,7 +6,12 @@ export interface BaseMessage {
 export interface JoinRoomMessage extends BaseMessage {
   event: "join-room"
   name: string
-  roomCode: string
+  roomcode: string
+}
+
+export interface StartGameMessage extends BaseMessage {
+  event: "start-game",
+  roomcode: string
 }
 
 export interface LeaveRoomMessage extends BaseMessage {
@@ -20,17 +25,17 @@ export interface InformativeMessage extends BaseMessage {
   event: "informative-message"
   message: string
   playerNameArray: string[]
-  roomCode: string
+  roomcode: string
 }
 export interface ClearMessage extends BaseMessage {
   event: "clear-message"
   playerNameArray: string[]
-  roomCode: string
+  roomcode: string
 }
 export interface InputMessage extends BaseMessage {
   event: "input-message"
   playerNameArray: string[]
-  roomCode: string
+  roomcode: string
   message: string
   placeholder: string
 }
@@ -41,6 +46,7 @@ export interface AnswerMessage extends BaseMessage {
 }
 
 export type Message =
+  | StartGameMessage
   | JoinRoomMessage
   | LeaveRoomMessage
   | CreateRoomMessage

@@ -52,7 +52,7 @@ export default class RoomService {
       hostSocket.host,
       true,
     )
-    this.rooms.set(newRoom.roomCode, newRoom)
+    this.rooms.set(newRoom.roomcode, newRoom)
     return newRoom
   }
 
@@ -82,11 +82,11 @@ export default class RoomService {
     }
   }
 
-  public getRoomByCode(roomCode: string): Room {
-    const room: Room | undefined = this.rooms.get(roomCode)
+  public getRoomByCode(roomcode: string): Room {
+    const room: Room | undefined = this.rooms.get(roomcode)
 
     if (!room) {
-      throw new ReferenceError(`Room with code ${roomCode} does not exist.`)
+      throw new ReferenceError(`Room with code ${roomcode} does not exist.`)
     }
 
     return room

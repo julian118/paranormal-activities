@@ -28,7 +28,7 @@ export default class RoomController {
       const room: Room = this.roomService.createRoom(hostSocket, uniqueRoomCode)
 
       this.connectionService.connectHost(host, hostSocket)
-      this.connectionService.addRoomConnection(room.roomCode)
+      this.connectionService.addRoomConnection(room.roomcode)
       this.connectionService.broadcastGameInformation(room)
     } catch (error: unknown) {
       this.broadcastErrorToHost("An unknown error occured", hostSocket)
@@ -42,10 +42,10 @@ export default class RoomController {
 
   joinRoom(message: JoinRoomMessage, socket: PlayerWebSocket) {
     try {
-      const room: Room = this.roomService.getRoomByCode(message.roomCode)
+      const room: Room = this.roomService.getRoomByCode(message.roomcode)
       const player: Player = new Player(
         message.name,
-        room.roomCode,
+        room.roomcode,
         message.deviceId,
         false,
       )

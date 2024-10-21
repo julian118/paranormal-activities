@@ -1,5 +1,3 @@
-import ConnectionController from "../controllers/connectionController.ts"
-import { Player } from "../models/player.model.ts"
 import { HostWebSocket } from "../types/hostWebSocket.ts"
 import { PlayerWebSocket } from "../types/userWebSocket.ts"
 import ConnectionService from "./connectionService.ts"
@@ -17,9 +15,9 @@ export default class GameService {
     this.connectionService = ConnectionService.getInstance()
   }
 
-  informativeMessage(message: string, roomCode: string, playerNames: string[]) {
+  informativeMessage(message: string, roomcode: string, playerNames: string[]) {
     const playerSockets: PlayerWebSocket[] = this.connectionService
-      .getPlayerSocketsFromNameArray(playerNames, roomCode)
+      .getPlayerSocketsFromNameArray(playerNames, roomcode)
 
     console.log(`message: ${message} for players ${playerNames}`)
     const infoMessage: BroadcastMessage = {
@@ -37,11 +35,11 @@ export default class GameService {
   inputMessage(
     message: string,
     placeholder: string,
-    roomCode: string,
+    roomcode: string,
     playerNames: string[],
   ) {
     const playerSockets: PlayerWebSocket[] = this.connectionService
-      .getPlayerSocketsFromNameArray(playerNames, roomCode)
+      .getPlayerSocketsFromNameArray(playerNames, roomcode)
     const inputMessage: BroadcastMessage = {
       event: "input-message",
       message: message,
@@ -58,20 +56,20 @@ export default class GameService {
     const answerMessage: BroadcastMessage = {
       event: "answer-message",
       answer: answer,
-      roomCode: playerWebSocket.player.connectedGameCode,
+      roomcode: playerWebSocket.player.connectedGameCode,
       player: playerWebSocket.player.name
     }
-    const roomCode: string = playerWebSocket.player.connectedGameCode
+    const roomcode: string = playerWebSocket.player.connectedGameCode
     const host: HostWebSocket | undefined = this.connectionService
-      .connectedHosts.get(roomCode)
+      .connectedHosts.get(roomcode)
     if (host) {
       this.connectionService.broadcastToHost(answerMessage, host)
     }
   }
 
-  clear(roomCode: string, playerNames: string[]) {
+  clear(roomcode: string, playerNames: string[]) {
     const playerSockets: PlayerWebSocket[] = this.connectionService
-      .getPlayerSocketsFromNameArray(playerNames, roomCode)
+      .getPlayerSocketsFromNameArray(playerNames, roomcode)
 
     const infoMessage: BroadcastMessage = {
       event: "clear",

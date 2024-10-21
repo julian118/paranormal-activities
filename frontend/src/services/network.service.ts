@@ -5,12 +5,12 @@ export default class NetworkService {
     const socket = new WebSocket(`${this.backendUrl}/start_web_socket`)
 
     // Joining an existing room
-    joinRoom(roomCode: string, name: string) {
+    joinRoom(roomcode: string, name: string) {
 
     this.socket.send(
         JSON.stringify({
         event: "join-room",
-        roomCode: roomCode,
+        roomcode: roomcode,
         name: name
         }),
     )

@@ -32,7 +32,7 @@ function informativeMessage() {
   const message = JSON.stringify({
     event: "informative-message",
     message: `WARNING ${receivedData.room.playerList[0].name} SMELLS REALL BAD!`,
-    roomCode: receivedData.room.roomCode,
+    roomcode: receivedData.room.roomcode,
     playerNameArray: receivedData.room.playerList.map((player) => player.name),
   })
   console.log(message)
@@ -44,7 +44,7 @@ function informativeMessage() {
 function clearMessage() {
   const message = JSON.stringify({
     event: "clear-message",
-    roomCode: receivedData.room.roomCode,
+    roomcode: receivedData.room.roomcode,
     playerNameArray: receivedData.room.playerList.map((player) => player.name),
   })
   console.log(message)
@@ -56,7 +56,7 @@ function clearMessage() {
 function inputMessage() {
   const message = JSON.stringify({
     event: "input-message",
-    roomCode: receivedData.room.roomCode,
+    roomcode: receivedData.room.roomcode,
     playerNameArray: receivedData.room.playerList.map((player) => player.name),
     message: "enter your favorite animal",
     placeholder: "turtle"
@@ -84,7 +84,7 @@ function displayData(data) {
   console.log(data)
   // Update room code
   document.getElementById("room-code-display").innerHTML = "Room code: " +
-    data.room.roomCode
+    data.room.roomcode
 
   // Update the player list
   document.getElementById("joined").innerHTML = ""
