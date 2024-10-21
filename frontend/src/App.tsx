@@ -23,7 +23,7 @@ export const App: React.FC = () => {
   const [room, setRoom] = useState<Room>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [informativeMessage, setInformativeMessage] = useState<string | null>(null);
-  const [gameComponent, setGameComponent] = useState<ReactNode | null>(<><p>waiting for something interesting to happen</p></>)
+  const [gameComponent, setGameComponent] = useState<ReactNode | null>(<div>waiting for something interesting to happen</div>)
   const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(
     backendUrl + "/start_player_web_socket",
     {
@@ -105,7 +105,7 @@ export const App: React.FC = () => {
   }, [lastMessage]);
 
   return (
-    <>
+    <div className="container">
     {
       gameState == GameState.Joining 
       ? <Start onJoinRoom={joinGameHandler} errorMessage={errorMessage} />
@@ -121,7 +121,7 @@ export const App: React.FC = () => {
       ? gameComponent
       : null
     }
-    </>
+    </div>
   );
 };
 

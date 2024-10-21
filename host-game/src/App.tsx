@@ -14,8 +14,10 @@ import { getDeviceId } from './pages/utils/deviceUtils';
 const backendUrl = "ws://localhost:8080";
 
 function App() {
-  const [room, setRoom] = useState<Room | null>(null);
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const [room, setRoom] = useState<Room | null>(null)
+  const audioRef = useRef<HTMLAudioElement>(null)
+  const [time, setTime] = useState<number | null>(null)
+  const [text, setText] = useState<string>('nothing')
 
   const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(
     backendUrl + "/start_host_web_socket",
@@ -39,6 +41,10 @@ function App() {
       console.log("Parsed message data:", messageData);
       if (messageData.room) {
         setRoom(new Room(messageData.room.roomcode, messageData.room.playerList, messageData.room.deviceId));  
+      }
+      if (messageData.event == 'display') {
+        setTime(messageData.time!)
+        setText(messageData.text!)
       }
     }
   }, [lastMessage]);
@@ -65,7 +71,7 @@ function App() {
             } />
           <Route path="/game" index element={
             room
-            ? <Game room={room} sendMessage={sendMessage} />
+            ? <Game room={room} text={text} time={time} />
             : <h1>no room joined</h1>
           } />
         </Routes>

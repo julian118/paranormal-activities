@@ -24,7 +24,7 @@ export default class RoomController {
   createRoom(message: CreateRoomMessage, hostSocket: HostWebSocket) {
     try {
       const uniqueRoomCode = this.roomService.generateUniqueRoomCode()
-      const host: Host = new Host(uniqueRoomCode, message.deviceId)
+      const host: Host = new Host(uniqueRoomCode, null, message.deviceId)
       const room: Room = this.roomService.createRoom(hostSocket, uniqueRoomCode)
 
       this.connectionService.connectHost(host, hostSocket)

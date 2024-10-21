@@ -84,11 +84,9 @@ export default class RoomService {
 
   public getRoomByCode(roomcode: string): Room {
     const room: Room | undefined = this.rooms.get(roomcode)
-
     if (!room) {
       throw new ReferenceError(`Room with code ${roomcode} does not exist.`)
     }
-
     return room
   }
 

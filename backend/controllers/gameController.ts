@@ -1,7 +1,9 @@
+import { Host } from "../models/host.model.ts"
 import ConnectionService from "../services/connectionService.ts"
 import GameLoop from "../services/gameLoop.ts"
 import GameService from "../services/gameService.ts"
 import { HostWebSocket } from "../types/hostWebSocket.ts"
+
 import {
   AnswerMessage,
   ClearMessage,
@@ -20,8 +22,10 @@ export default class GameController {
   }
 
   startGameLoop(data: StartGameMessage) {
+    const hostSocket = this.connectionService.connectedHosts.get(data.roomcode)
     const roomcode: string = data.roomcode
     const gameloop: GameLoop = new GameLoop(roomcode)
+    hostSocket!.host.gameLoopInstance = gameloop
     gameloop.main()
   }
 
@@ -46,6 +50,8 @@ export default class GameController {
     )
   }
   answerPrompt(data: AnswerMessage, playerWebSocket: PlayerWebSocket) {
-    this.gameService.answerMessage(data.answer, playerWebSocket)
+    const connectedGamecode: string = playerWebSocket.player.connectedGameCode
+    const gameLoop: GameLoop = this.gameService.getGameLoopInstanceFromRoomcode(connectedGamecode)
+    gameLoop.handlePlayerInput(playerWebSocket.player.name, data.answer)
   }
 }

@@ -1,6 +1,8 @@
+import { Host } from "../models/host.model.ts"
 import { HostWebSocket } from "../types/hostWebSocket.ts"
 import { PlayerWebSocket } from "../types/userWebSocket.ts"
 import ConnectionService from "./connectionService.ts"
+import GameLoop from "./gameLoop.ts"
 
 type BroadcastMessage = {
   [key: string]: any
@@ -80,5 +82,27 @@ export default class GameService {
         playerSocket.send(JSON.stringify(infoMessage))
       }
     }
+  }
+  relayAnswerToHost(prompt: string, answer: string, hostSocket: HostWebSocket) {
+    const relayAnswerMessage: BroadcastMessage = {
+      event: 'answer-relay',
+      prompt: prompt,
+      answer: answer
+    }
+    this.connectionService.broadcastToHost(relayAnswerMessage, hostSocket)
+  }
+  display(text: string, time: number, hostSocket: HostWebSocket) {
+    const displayMessage: BroadcastMessage = {
+      event: 'display',
+      text: text,
+      time: time
+    }
+    console.log(`displaying ${text} for ${time} seconds`)
+    this.connectionService.broadcastToHost(displayMessage, hostSocket)
+  }
+  getGameLoopInstanceFromRoomcode(roomcode: string): GameLoop {
+    const hostSocket: HostWebSocket = this.connectionService.connectedHosts.get(roomcode)!
+    const host: Host = hostSocket.host
+    return host.gameLoopInstance!
   }
 }
