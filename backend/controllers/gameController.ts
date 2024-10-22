@@ -12,7 +12,7 @@ import {
   StartGameMessage,
 } from "../types/messages.ts"
 import { PlayerWebSocket } from "../types/userWebSocket.ts"
-
+// TODO: export redundant GameController code to a service
 export default class GameController {
   gameService: GameService
   connectionService: ConnectionService

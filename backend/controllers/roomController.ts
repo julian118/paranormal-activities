@@ -8,6 +8,7 @@ import BroadcastMessage from "../types/broadcastMessage.ts"
 import { HostWebSocket } from "../types/hostWebSocket.ts"
 import { Host } from "../models/host.model.ts"
 
+// TODO: export redundant roomcontroller code to a service
 export default class RoomController {
   private roomService: RoomService
   private connectionService: ConnectionService
@@ -36,13 +37,13 @@ export default class RoomController {
     this.connectionService.addRoomConnection
   }
 
-  joinRoom(message: JoinRoomMessage, socket: PlayerWebSocket) {
+  joinRoom(joinRoomMessage: JoinRoomMessage, socket: PlayerWebSocket) {
     try {
-      const room: Room = this.roomService.getRoomByCode(message.roomcode)
+      const room: Room = this.roomService.getRoomByCode(joinRoomMessage.roomcode)
       const player: Player = new Player(
-        message.name,
+        joinRoomMessage.name,
         room.roomcode,
-        message.deviceId,
+        joinRoomMessage.deviceId,
         false,
       )
 
@@ -50,11 +51,12 @@ export default class RoomController {
       this.connectionService.connectPlayer(player, socket)
       this.connectionService.broadcastGameInformation(room)
 
-      const broadcastMessage: BroadcastMessage = {
+      const message: BroadcastMessage = {
         event: "update-self",
         player: player,
       }
-      this.connectionService.broadcastToPlayer(broadcastMessage, socket)
+      const jsonMessage: string = JSON.stringify(message)
+      this.connectionService.broadcastToPlayer(jsonMessage, socket)
     } catch (error: unknown) {
       if (error instanceof ReferenceError) {
         this.broadcastErrorToPlayer(error.message, socket)
@@ -79,7 +81,8 @@ export default class RoomController {
       isError: true,
       details: details,
     }
-    this.connectionService.broadcastToPlayer(message, socket)
+    const jsonMessage: string = JSON.stringify(message)
+    this.connectionService.broadcastToPlayer(jsonMessage, socket)
   }
   private broadcastErrorToHost(details: string, socket: HostWebSocket) {
     const message: BroadcastMessage = {

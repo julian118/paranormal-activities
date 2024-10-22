@@ -34,9 +34,9 @@ export default class GameLoop {
 
 
   public async main() {
-    await this.explanation(20)
     const players: Player[] = [...this.room.playerList.values()]
-    const medium: Player = await this.voteMedium(10)
+    await this.explanation(20, players)
+    const medium: Player = await this.voteMedium(10, players)
     const spirits: Player[] = players.filter((player) => player !== medium)
     const question: string = await this.mediumAnswerPrompt(20, medium)
     await this.spiritsAnswerPrompt(20, spirits, question)
@@ -46,13 +46,18 @@ export default class GameLoop {
     // rankResponses
   }
 
-  private async explanation(durationSeconds: number) {
+  private async explanation(durationSeconds: number, players: Player[]) {
     this.gameService.display(
       "<explanation here>",
       durationSeconds,
       this.hostWebSocket,
     )
+    this.gameService.informativeMessage(
+        "sit tight and watch the explanation", 
+        this.room.roomcode, 
+        this.formattingService.playerListToStringList(players))
     await this.startTimer(durationSeconds)
+
   }
   private async voteMedium(durationSeconds: number, players: Player[]): Promise<Player> {
     this.gameService.display(
