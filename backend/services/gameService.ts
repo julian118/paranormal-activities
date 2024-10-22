@@ -5,13 +5,16 @@ import { CollaborativeOutput, CollaborativeOutputUtils } from "../types/collabor
 import { HostWebSocket } from "../types/hostWebSocket.ts"
 import { PlayerWebSocket } from "../types/userWebSocket.ts"
 import ConnectionService from "./connectionService.ts"
+import FormattingService from "./formattingService.ts"
 import GameLoop from "./gameLoop.ts"
 
 
 export default class GameService {
+  private formattingService: FormattingService
   private connectionService: ConnectionService
 
   constructor() {
+    this.formattingService = new FormattingService()
     this.connectionService = ConnectionService.getInstance()
   }
 
@@ -41,6 +44,18 @@ export default class GameService {
 
     this.connectionService.broadcastToPlayers(playerSockets, inputMessage)
   }
+  votePlayerMessage(players: Player[], roomcode: string) {
+    const playerSockets: PlayerWebSocket[] = this.connectionService.getPlayerSocketsFromNameArray(
+      this.formattingService.playerListToStringList(players),
+      roomcode,
+    )
+    const votingMessage: BroadcastMessage = {
+      event: "voting-message",
+      playerList: players
+    }
+
+    this.connectionService.broadcastToPlayers(playerSockets, votingMessage)
+  }
   collaborativeInputMessage(output: CollaborativeOutput, placeholder:string, roomcode: string) {
     const playerNameList: string[] = CollaborativeOutputUtils.getPlayerNameList(output)
     const playerSockets: PlayerWebSocket[] = this.connectionService.getPlayerSocketsFromNameArray(
@@ -69,7 +84,6 @@ export default class GameService {
       this.connectionService.broadcastToHost(answerMessage, host)
     }
   }
-
   clear(roomcode: string, playerNames: string[]) {
     const playerSockets: PlayerWebSocket[] = this.connectionService
       .getPlayerSocketsFromNameArray(playerNames, roomcode)

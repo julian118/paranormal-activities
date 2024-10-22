@@ -48,12 +48,12 @@ export default class ConnectionService {
     playerWebSockets: PlayerWebSocket[],
     broadcastMessage: BroadcastMessage,
   ) {
+    const jsonMessage:string = JSON.stringify(broadcastMessage)
     for (const playerSocket of playerWebSockets) {
-      this.broadcastToPlayer(broadcastMessage, playerSocket)
+      this.broadcastToPlayer(jsonMessage, playerSocket)
     }
   }
-  broadcastToPlayer(message: BroadcastMessage, playerSocket: PlayerWebSocket) {
-    const jsonMessage = JSON.stringify(message)
+  broadcastToPlayer(jsonMessage: string, playerSocket: PlayerWebSocket) {
     if (playerSocket.readyState == WebSocket.OPEN) {
       playerSocket.send(jsonMessage)
     }

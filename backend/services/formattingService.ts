@@ -17,6 +17,10 @@ export default class FormattingService {
     return player
   }
 
+  playerListToStringList(playerList: Player[]): string[] {
+    return Array.from(playerList).map((player) => player.name)
+  }
+
   mapToPlayerNames(map: Map<string, Player>): string[] {
     return Array.from(map.values()).map((player) => player.name)
   }

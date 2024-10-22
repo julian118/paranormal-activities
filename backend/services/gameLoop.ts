@@ -54,12 +54,13 @@ export default class GameLoop {
     )
     await this.startTimer(durationSeconds)
   }
-  private async voteMedium(durationSeconds: number): Promise<Player> {
+  private async voteMedium(durationSeconds: number, players: Player[]): Promise<Player> {
     this.gameService.display(
       "vote for who should be the medium",
       durationSeconds,
       this.hostWebSocket,
     )
+    this.gameService.votePlayerMessage(players, this.room.roomcode)
     await this.startTimer(durationSeconds)
     const playerEntry = this.room.playerList.entries().next()
     if (!playerEntry.done) {
