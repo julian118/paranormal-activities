@@ -9,4 +9,6 @@ export default interface MessageData {
     details?: string;
     message?: string;
     placeholder?: string;
+    playerList?: Player[];
+    disallowedPlayerNames?: string[];
   }

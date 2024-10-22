@@ -51,7 +51,8 @@ export default class GameService {
     )
     const votingMessage: BroadcastMessage = {
       event: "voting-message",
-      playerList: players
+      playerList: players,
+      disallowedPlayerNames: [], // TODO: refactor code so that voting message always has players own name as disallowed
     }
 
     this.connectionService.broadcastToPlayers(playerSockets, votingMessage)

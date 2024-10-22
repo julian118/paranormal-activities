@@ -2,6 +2,7 @@ import Player from "../models/Player.model";
 
 interface PlayerListProps {
   players: Player[];
+  
 }
 const PlayerList: React.FC<PlayerListProps> = (props) => {
   return (

@@ -7,6 +7,8 @@ import MessageData from "./types/messageData.ts";
 import Room from "./models/Room.model.ts";
 import Start from "./pages/Start.tsx";
 import InputMessage from "./components/InputMessage.tsx";
+import VoteComponent from "./components/VoteComponent.tsx";
+import Player from "./models/Player.model.ts";
 
 enum GameState {
   Joining,
@@ -49,19 +51,27 @@ export const App: React.FC = () => {
       roomcode: joinDetails.roomcode,
       name: joinDetails.name,
       deviceId: getDeviceId(),
-    }));
-  };
+    }))
+  }
 
   const answerHandler = (answer: string) => {
-    
     console.log(`sending: ${answer}`);
     sendMessage(JSON.stringify({
       event: "answer-prompt",
       answer: answer,
-    }));
+    }))
+  }
+  const voteHandler = (playerName: string) => {
+    console.log(`sending: ${playerName}`)
+    sendMessage(JSON.stringify({event: "vote-answer", playerName: playerName}))
   }
 
+  const samplePlayerList: Player[] = []
+  samplePlayerList.push(new Player('dragon', '1', true))
+  samplePlayerList.push(new Player('dino', '2', false))
+  samplePlayerList.push(new Player('basilisk', '3', false))
 
+  // switch satement with all possible messages from backend
   useEffect(() => {
     if (lastMessage !== null) {
       try {
@@ -91,8 +101,17 @@ export const App: React.FC = () => {
               placeholder={messageData.placeholder!} 
               message={messageData.message!}></InputMessage>)
             break
+          case "voting-message":
+            setGameComponent(
+              <VoteComponent 
+                playerList={messageData.playerList!} 
+                disallowedPlayerNames={messageData.disallowedPlayerNames!}
+                onSubmit={voteHandler}>
+              </VoteComponent>)
+              break
           case "clear":
             setGameComponent(null)
+            break
           default:
             console.log('default message')
         }
