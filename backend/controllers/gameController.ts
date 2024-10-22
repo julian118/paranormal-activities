@@ -51,7 +51,9 @@ export default class GameController {
   }
   answerPrompt(data: AnswerMessage, playerWebSocket: PlayerWebSocket) {
     const connectedGamecode: string = playerWebSocket.player.connectedGameCode
-    const gameLoop: GameLoop = this.gameService.getGameLoopInstanceFromRoomcode(connectedGamecode)
+    const gameLoop: GameLoop = this.gameService.getGameLoopInstanceFromRoomcode(
+      connectedGamecode,
+    )
     gameLoop.handlePlayerInput(playerWebSocket.player.name, data.answer)
   }
 }

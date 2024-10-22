@@ -38,17 +38,24 @@ export default class ConnectionService {
     return ConnectionService.instance
   }
 
-  broadcastToPlayer(message: BroadcastMessage, playerSocket: PlayerWebSocket) {
-    const jsonMessage = JSON.stringify(message)
-    if (playerSocket.readyState == WebSocket.OPEN) {
-      playerSocket.send(jsonMessage)
-    }
-  }
-
   broadcastToHost(message: BroadcastMessage, hostSocket: HostWebSocket) {
     const jsonMessage = JSON.stringify(message)
     if (hostSocket.readyState == WebSocket.OPEN) {
       hostSocket.send(jsonMessage)
+    }
+  }
+  broadcastToPlayers(
+    playerWebSockets: PlayerWebSocket[],
+    broadcastMessage: BroadcastMessage,
+  ) {
+    for (const playerSocket of playerWebSockets) {
+      this.broadcastToPlayer(broadcastMessage, playerSocket)
+    }
+  }
+  broadcastToPlayer(message: BroadcastMessage, playerSocket: PlayerWebSocket) {
+    const jsonMessage = JSON.stringify(message)
+    if (playerSocket.readyState == WebSocket.OPEN) {
+      playerSocket.send(jsonMessage)
     }
   }
 

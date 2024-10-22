@@ -1,14 +1,12 @@
 import { Host } from "../models/host.model.ts"
+import { Player } from "../models/player.model.ts"
+import BroadcastMessage from "../types/broadcastMessage.ts"
+import { CollaborativeOutput, CollaborativeOutputUtils } from "../types/collaborativeOutput.ts"
 import { HostWebSocket } from "../types/hostWebSocket.ts"
 import { PlayerWebSocket } from "../types/userWebSocket.ts"
 import ConnectionService from "./connectionService.ts"
 import GameLoop from "./gameLoop.ts"
 
-type BroadcastMessage = {
-  [key: string]: any
-} & {
-  event: string
-}
 
 export default class GameService {
   private connectionService: ConnectionService
@@ -27,39 +25,42 @@ export default class GameService {
       message: message,
     }
 
-    for (const playerSocket of playerSockets) {
-      if (playerSocket.readyState === WebSocket.OPEN) {
-        playerSocket.send(JSON.stringify(infoMessage))
-      }
-    }
+    this.connectionService.broadcastToPlayers(playerSockets, infoMessage)
   }
 
-  inputMessage(
-    message: string,
-    placeholder: string,
-    roomcode: string,
-    playerNames: string[],
-  ) {
-    const playerSockets: PlayerWebSocket[] = this.connectionService
-      .getPlayerSocketsFromNameArray(playerNames, roomcode)
+  inputMessage(message: string, placeholder: string, roomcode: string, playerNames: string[]) {
+    const playerSockets: PlayerWebSocket[] = this.connectionService.getPlayerSocketsFromNameArray(
+      playerNames,
+      roomcode,
+    )
     const inputMessage: BroadcastMessage = {
       event: "input-message",
       message: message,
       placeholder: placeholder,
     }
 
-    for (const playerSocket of playerSockets) {
-      if (playerSocket.readyState === WebSocket.OPEN) {
-        playerSocket.send(JSON.stringify(inputMessage))
-      }
+    this.connectionService.broadcastToPlayers(playerSockets, inputMessage)
+  }
+  collaborativeInputMessage(output: CollaborativeOutput, placeholder:string, roomcode: string) {
+    const playerNameList: string[] = CollaborativeOutputUtils.getPlayerNameList(output)
+    const playerSockets: PlayerWebSocket[] = this.connectionService.getPlayerSocketsFromNameArray(
+      playerNameList,
+      roomcode,
+    )
+    const colInputMessage: BroadcastMessage = {
+      event: "collaborative-input-message",
+      output: output,
+      placeholder: placeholder
     }
+    this.connectionService.broadcastToPlayers(playerSockets, colInputMessage)
+
   }
   answerMessage(answer: string, playerWebSocket: PlayerWebSocket) {
     const answerMessage: BroadcastMessage = {
       event: "answer-message",
       answer: answer,
       roomcode: playerWebSocket.player.connectedGameCode,
-      player: playerWebSocket.player.name
+      player: playerWebSocket.player.name,
     }
     const roomcode: string = playerWebSocket.player.connectedGameCode
     const host: HostWebSocket | undefined = this.connectionService
@@ -85,23 +86,25 @@ export default class GameService {
   }
   relayAnswerToHost(prompt: string, answer: string, hostSocket: HostWebSocket) {
     const relayAnswerMessage: BroadcastMessage = {
-      event: 'answer-relay',
+      event: "answer-relay",
       prompt: prompt,
-      answer: answer
+      answer: answer,
     }
     this.connectionService.broadcastToHost(relayAnswerMessage, hostSocket)
   }
   display(text: string, time: number, hostSocket: HostWebSocket) {
     const displayMessage: BroadcastMessage = {
-      event: 'display',
+      event: "display",
       text: text,
-      time: time
+      time: time,
     }
     console.log(`displaying ${text} for ${time} seconds`)
     this.connectionService.broadcastToHost(displayMessage, hostSocket)
   }
   getGameLoopInstanceFromRoomcode(roomcode: string): GameLoop {
-    const hostSocket: HostWebSocket = this.connectionService.connectedHosts.get(roomcode)!
+    const hostSocket: HostWebSocket = this.connectionService.connectedHosts.get(
+      roomcode,
+    )!
     const host: Host = hostSocket.host
     return host.gameLoopInstance!
   }

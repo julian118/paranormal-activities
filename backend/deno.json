@@ -6,6 +6,7 @@
     "@std/assert": "jsr:@std/assert@1"
   },
   "fmt": {
-    "semiColons": false
+    "semiColons": false,
+    "lineWidth": 110
   }
 }

@@ -10,7 +10,7 @@ export interface JoinRoomMessage extends BaseMessage {
 }
 
 export interface StartGameMessage extends BaseMessage {
-  event: "start-game",
+  event: "start-game"
   roomcode: string
 }
 

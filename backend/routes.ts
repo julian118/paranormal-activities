@@ -1,10 +1,5 @@
 // server.ts
-import {
-  AnswerMessage,
-  CreateRoomMessage,
-  JoinRoomMessage,
-  StartGameMessage,
-} from "./types/messages.ts"
+import { AnswerMessage, CreateRoomMessage, JoinRoomMessage, StartGameMessage } from "./types/messages.ts"
 import { Application, Router } from "https://deno.land/x/oak/mod.ts"
 import ConnectionController from "./controllers/connectionController.ts"
 import RoomController from "./controllers/roomController.ts"
